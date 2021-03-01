@@ -14,7 +14,8 @@ def chord_mask(N, base=2):
             ch[i, ((i - 1) + base ** t) % N] = 1
     return ch
 
-print(chord_mask(11, 2))
+
+print(chord_mask(12, 2))
 print(chord_mask(17, 2))
 
 
