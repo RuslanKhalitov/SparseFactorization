@@ -39,31 +39,37 @@ def forward(V):
             for k in range(K):
                 W[i][(i + np.power(2, k)) % N] = F[i][k]
         #print(W)
-        V = np.matmul(W, V)
+        V = np.matmul(W.T, V)
         w.append(W)
         v.append(V)
     return V, w, v
 
 
-def calculateDelta():
+def calculateDelta(N):
     """
     :return:
     """
-    return
+    delta = np.random.rand(N, 2)
+    return delta
 
 
-def backward(w, v):
+def backward(w, v, N):
     """
     #1. multiply output delta and input activation to get the gradient of the weight
     :return:
     """
-    F = []
+    F = np.zeros((N, 2))
+    new_v = []
+    K = 2
     for i in range(len(w)):
-        delta = calculateDelta()
-        v[i] = w[i].T.dot(delta)
-        F[i] = delta.dot(v[i+pow(2, k):].T)
+        delta = calculateDelta(16)
+        new_v.append(np.matmul(w[i].T, delta)) ## dimension of delta is N*2
+        for j in range(N):
+            for k in range(K):
+                theta = delta * np.matrix(v[i][(j + np.power(2, k)) % N]).T
+                F[j][k] = theta[j][0]
 
-    return v, F
+    return new_v, F
 
 
 def main():
@@ -72,8 +78,10 @@ def main():
     """
     V = g(16)
     V, w, v = forward(V)
-    print(len(w))
     print(len(v))
+    v, F = backward(w, v, 16)
+    print(v)
+    print(F)
 
 
 if __name__ == "__main__":
