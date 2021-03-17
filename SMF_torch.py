@@ -5,8 +5,9 @@ import numpy as np
 class SMFNet(torch.nn.Module):
     def __init__(self, D_in, H):
         super(SMFNet, self).__init__()
-        self.f_linear = torch.nn.Linear(D_in, H)
-        self.g_linear = torch.nn.Linear(D_in, H)
+        self.f_linear = torch.nn.Linear(D_in, H, bias=False)
+        self.g_linear = torch.nn.Linear(D_in, H, bias=False)
+        self.relu = torch.nn.ReLU()
 
     def forward(self, X):
         N = X.shape[0]
@@ -14,8 +15,8 @@ class SMFNet(torch.nn.Module):
         F = torch.zeros(N, 2)
         W = torch.zeros(N, N)
         for i in range(N):
-            v_out = self.g_linear(X[i])
-            f_out = self.g_linear(X[i])
+            v_out = self.relu(self.g_linear(X[i]))
+            f_out = self.relu(self.f_linear(X[i]))
             V[i] = v_out
             F[i] = f_out
         for i in range(N):
@@ -35,7 +36,7 @@ def training():
     model = SMFNet(D_in, H)
     criterion = torch.nn.MSELoss(reduction='sum')
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-4)
-    for i in range(1000):
+    for i in range(5):
         V0 = model(X)
         loss = criterion(X_gt, V0)
         optimizer.zero_grad()
