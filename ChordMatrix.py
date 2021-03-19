@@ -5,9 +5,14 @@ Author: ShuttleNet team (NTNU)
 import numpy as np
 
 
-def chord_mask(N, base=2):
+def chord_mask(N, base=2, self_loop=False):
     ts = int(round(np.log(N)/np.log(base))) + 1
-    ch = np.eye(N)
+
+    if self_loop:
+        ch = np.eye(N)
+    else:
+        ch = np.zeros(N)
+
     for i in range(N):
         for t in range(ts):
             # ch[i, abs((i + base ** t)) % N] = 1
@@ -15,7 +20,8 @@ def chord_mask(N, base=2):
     return ch
 
 
-print(chord_mask(12, 2))
-print(chord_mask(17, 2))
+# print(chord_mask(12, 2, True))
+print(chord_mask(17, 2, True))
+
 
 

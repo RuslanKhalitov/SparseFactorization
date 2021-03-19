@@ -33,14 +33,14 @@ class SparseFactorization(nn.Module):
         self.device = device
         self.bias = bias
         self.obj_embedding = nn.Embedding(src_vocab_size, embedding_size)
-        self.pos_embedding = nn.Embedding(max_len, embedding_size)
-        self.V = nn.Linear(2 * embedding_size, max_len, bias=self.bias)
+        # self.pos_embedding = nn.Embedding(max_len, embedding_size)
+        self.g = nn.Linear(embedding_size, max_len, bias=self.bias)
 
         # ModuleList can be indexed like a regular Python list, but modules it contains
         # are properly registered, and will be visible by all Module methods.
-        self.Fm = nn.ModuleList(
+        self.fm = nn.ModuleList(
             [
-                nn.Linear(2 * embedding_size, max_len * max_len, bias=self.bias)
+                nn.Linear(N, max_len * max_len, bias=self.bias)
                 for _ in range(n_layers)
             ]
         )
@@ -63,10 +63,11 @@ class SparseFactorization(nn.Module):
         positions = torch.arange(0, seq_length).expand(N, seq_length).to(self.device)
         if mask:
             mask = self.make_W_mask(seq_length)  # generate chord mask
-        full_embedding = self.obj_embedding(x) + self.pos_embedding(positions)
-        final = self.V(full_embedding)  # calculate V
+        # full_embedding = self.obj_embedding(x) + self.pos_embedding(positions)
+        full_embedding = self.obj_embedding(x)
+        final = self.g(full_embedding)  # calculate V
 
-        for F in self.Fm:
+        for F in self.fm:
             # linear module to calculate a chord matrix
             out = F(full_embedding)
             if mask:
