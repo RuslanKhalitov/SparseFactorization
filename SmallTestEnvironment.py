@@ -23,11 +23,7 @@ LRf = 0.01
 
 # Activation functions and its derivatives
 def relu(x):
-    return max(0, x)
-
-
-def leaky_relu(x, slope=0.01):
-    return max(slope * x, x)
+    return np.maximum(0, x)
 
 
 def tanh(x):
@@ -38,20 +34,19 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 
-def d_relu(x):
-    return 1 if x > 0 else 0
+def d_relu(dA, z):
+    d = np.array(dA, copy=True)
+    d[z < 0] = 0.
+    return d
 
 
-def d_leaky_relu(x, slope=0.01):
-    return 1 if x > 0 else slope
+def d_tanh(dA, z):
+    return dA * (1 - tanh(out) ** 2)
 
 
-def d_tanh(x):
-    return 1 - tanh(x) ** 2
-
-
-def d_sigmoid(x):
-    return sigmoid(x) * (1 - sigmoid(x))
+def d_sigmoid(dA, z):
+    sig = sigmoid(z)
+    return dA * sig * (1 - sig)
 
 
 activation_g = relu
@@ -134,17 +129,12 @@ def calculate_loss(V_gt, V0):
     return loss
 
 
-def forward(X, parameters):
-    """
-    Forward pass X -> V0. Also computes d_activation for
-    :param parameters: Current parameters of f and g
-    :return: V0, V, W, d_activation values for the backward pass
-    """
+def single_layer_forward_g(A_prev, parameters):
 
     # V
     V = np.zeros(N, d)
-    d_activation_values_g = np.zeros(N, d)
-    assert np.shape(V) == np.shape(X), "V and X have different size"
+    values_g = np.zeros(N, d)
+    assert np.shape(V) == np.shape(A_prev), "V and X have different size"
     xi = parameters['g']['weights']
     bias = parameters['g']['bias']
 
@@ -153,108 +143,135 @@ def forward(X, parameters):
         # columns
         for j in range(d):
             # bias[j] + X[i, 0] * xi[j, 0] + X[i, 1] * xi[j, 1]
-            value = bias[j] + np.sum([X[i, _] * xi[j, _] for _ in range(d)])
+            value = bias[j] + np.sum([A_prev[i, _] * xi[j, _] for _ in range(d)])
             V[i, j] = activation_g(value)
-            d_activation_values_g[i, j] = d_activation_g(value)
+            values_g[i, j] = value
 
-    # W
-    W_unmask = np.zeros(N, N)
-    d_activation_values_f = np.zeros(N, N)
+    return V, values_g
+
+
+def single_layer_forward_f(A_prev, parameters):
+
+        W_unmask = np.zeros(N, N)
+        values_f = np.zeros(N, N)
+        theta = parameters['f']['weights']
+        bias = parameters['f']['bias']
+
+        for i in range(N):
+            for j in range(N):
+                # bias[j] + X[i, 0] * theta[j, 0] + X[i, 1] * theta[j, 1] + X[i, 2] * theta[j, 2]
+                value = bias[j] + np.sum([A_prev[i, _] * theta[j, _] for _ in range(N)])
+                W_unmask[i, j] = activation_f(value)
+                values_f[i, j] = value
+
+        # masking W (elementwise product)
+        W = W_unmask * chord_mask(N)
+        values_f = values_f * chord_mask(N)
+
+        return W, values_f
+
+
+def full_forward_g(X, n_layers, parameters):
+    memory_g = {}
+    A_curr = X
+
+    for idx, layer in enumerate(n_layers):
+        layer_idx = idx + 1
+        A_prev = A_curr
+
+        A_curr, Z_curr = single_layer_forward_g(A_prev, parameters)
+
+        memory_g["A_g" + str(idx)] = A_prev
+        memory_g["Z_g" + str(layer_idx)] = Z_curr
+
+    return A_curr, memory_g
+
+
+def full_forward_f(X, n_layers, parameters):
+    memory_f = {}
+    A_curr = X
+
+    for idx, layer in enumerate(n_layers):
+        layer_idx = idx + 1
+        A_prev = A_curr
+
+        A_curr, Z_curr = single_layer_forward_f(A_prev, parameters)
+
+        memory_f["A_f" + str(idx)] = A_prev
+        memory_f["Z_f" + str(layer_idx)] = Z_curr
+
+    return A_curr, memory_f
+
+
+# Backward part
+# _______________________________________________
+
+
+def single_layer_backward_g(dA_curr, parameters, Z_curr, A_prev):
+    # A_prev is V
+    m = A_prev.shape[1]
+    xi = parameters['g']['weights']
+    bias = parameters['g']['bias']
+
+    dZ_curr = d_relu(dA_curr, Z_curr)
+    dW_curr = np.dot(dZ_curr, A_prev.T) / m
+    db_curr = np.sum(dZ_curr, axis=1, keepdims=True) / m
+    dA_prev = np.dot(xi.T, dZ_curr)
+
+    return dA_prev, dW_curr, db_curr
+
+
+def single_layer_backward_f(dA_curr, parameters, Z_curr, A_prev):
+    # A_prev is W
+    m = A_prev.shape[1]
     theta = parameters['f']['weights']
     bias = parameters['f']['bias']
 
-    # rows
-    for i in range(N):
-        # columns
-        for j in range(N):
-            # bias[j] + X[i, 0] * theta[j, 0] + X[i, 1] * theta[j, 1] + X[i, 2] * theta[j, 2]
-            value = bias[j] + np.sum([X[i, _] * theta[j, _] for _ in range(N)])
-            W_unmask[i, j] = activation_f(value)
-            d_activation_values_f[i, j] = d_activation_f(value)
+    dZ_curr = d_relu(dA_curr, Z_curr)
+    dW_curr = np.dot(dZ_curr, A_prev.T) / m
+    db_curr = np.sum(dZ_curr, axis=1, keepdims=True) / m
+    dA_prev = np.dot(theta.T, dZ_curr)
 
-    # masking W (elementwise product)
-    W = W_unmask * chord_mask(N)
-    d_activation_values_f = d_activation_values_f * chord_mask(N)
-
-    # WV (matrix multiplication)
-    V0 = np.matmul(W, V)
-
-    return V0, V, W, d_activation_values_g, d_activation_values_f
+    return dA_prev, dW_curr, db_curr
 
 
-def backward(parameters, V0, V, W, d_activation_values_g, d_activation_values_f, V_gt):
-    """
-    Calculates gradients of the Loss function (J) w.r.t (theta, bias) and (xi, bias)
-    and stores it in parameters['grad_weights'] and parameters['grad_bias']
-    for f and g respectively.
+def full_backward_propagation(V_gt, V, W, memory_f, memory_g, parameters, n_layers):
 
-    :param parameters: parameters of the model, gradient containers
-    :param V0: final result of the forward pass
-    :param V: tensor of size (Nxd)
-    :param W: tensor of size (NxN), after masking
-    :param d_activation_values_g: tensor of size (Nxd)
-    :param d_activation_values_f: tensor of size (NxN)
-    :param V_gt: tensor of size (Nxd), ground truth
-    :return: None
-    """
-
-    # TODO: add biases
-
+    # necessary derivatives in matrix form
+    V0 = np.dot(W, V)                         # (d, N)
     dj_dv0 = -2 * (V_gt - V0).T               # (d, N)
     dv0_dw = V                                # (N, d)
     dv0_dv = W                                # (N, N)
     dj_dw = dj_dv0 * dv0_dw                   # (d, d)
     dj_dv = dj_dv0 * dv0_dv                   # (d, N)
 
-    # g
+    # V
+    for layer_idx_prev, layer in reversed(list(enumerate(n_layers))):
+        layer_idx_curr = layer_idx_prev + 1
+        dA_curr = dj_dv
 
+        A_prev = memory_g["A_g" + str(layer_idx_prev)]
+        Z_curr = memory_g["Z_g" + str(layer_idx_curr)]
 
-    # f
+        dA_prev, dW_curr, db_curr = single_layer_backward_g(
+            dA_curr, parameters, Z_curr, A_prev
+        )
 
+        parameters['g']['grad_weights' + str(layer_idx_curr)] = dW_curr
+        parameters['g']['grad_bias' + str(layer_idx_curr)] = db_curr
 
-# ____________________________________________________
-# END OF NEW
+    # W
+    for layer_idx_prev, layer in reversed(list(enumerate(n_layers))):
+        layer_idx_curr = layer_idx_prev + 1
+        dA_curr = dj_dw
 
+        A_prev = memory_f["A_f" + str(layer_idx_prev)]
+        Z_curr = memory_f["Z_f" + str(layer_idx_curr)]
 
-def update_parameters(parameters, grad_values, learning_rate, N):
-    """
-    :param parameters: from previous epoch
-    :param grad_values: from backward
-    :param learning_rate:
-    :param N:
-    :return:
-    """
-    L = int(math.log(N, 2))
-    parameters['V'] -= learning_rate * grad_values["dv"]
-    for i in range(L):
-        parameters['F' + str(L - i)] -= learning_rate * \
-            grad_values["dF" + str(L - i)]
-        parameters['V' + str(L - i)] -= learning_rate * grad_values["dv"]
+        dA_prev, dW_curr, db_curr = single_layer_backward_f(
+            dA_curr, parameters, Z_curr, A_prev
+        )
 
-    return parameters
+        parameters['f']['grad_weights' + str(layer_idx_curr)] = dW_curr
+        parameters['f']['grad_bias' + str(layer_idx_curr)] = db_curr
 
-
-def training(epochs, learning_rate, N):
-    """
-    normal training process as in NN
-    :param epochs:
-    :param learning_rate:
-    :param N:
-    :return:
-    """
-    cost_history = []
-    for i in range(epochs):
-        V, memory = forward(parameters)
-        cost = calculate_loss(V, parameters['V_copy'])
-        grad_values = backward(parameters, N, V, memory)
-        parameters = update_parameters(
-            parameters, grad_values, learning_rate, N)
-        cost_history.append(cost)
-        print(cost)
-        # print(V)
-
-    return parameters, cost_history
-
-
-if __name__ == "__main__":
-    training(2, 0.01, 16)
