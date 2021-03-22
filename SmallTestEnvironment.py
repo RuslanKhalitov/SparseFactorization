@@ -128,7 +128,12 @@ def calculate_loss(V_gt, V0):
 
 
 def single_layer_forward_g(A_prev, parameters):
-
+    """
+    Emdedding from X to V line by line
+    :param A_prev: activation result from previous layer
+    :param parameters:
+    :return: V with the same dimesntion with X
+    """
     # V
     V = np.zeros(N, d)
     values_g = np.zeros(N, d)
@@ -149,27 +154,40 @@ def single_layer_forward_g(A_prev, parameters):
 
 
 def single_layer_forward_f(A_prev, parameters):
+    """
+    Generate W
+    :param A_prev: activation result from previous layer
+    :param parameters:
+    :return: masked W (N X N)
+    """
 
-        W_unmask = np.zeros(N, N)
-        values_f = np.zeros(N, N)
-        theta = parameters['f']['weights']
-        bias = parameters['f']['bias']
+    W_unmask = np.zeros(N, N)
+    values_f = np.zeros(N, N)
+    theta = parameters['f']['weights']
+    bias = parameters['f']['bias']
 
-        for i in range(N):
-            for j in range(N):
-                # bias[j] + X[i, 0] * theta[j, 0] + X[i, 1] * theta[j, 1] + X[i, 2] * theta[j, 2]
-                value = bias[j] + np.sum([A_prev[i, _] * theta[j, _] for _ in range(N)])
-                W_unmask[i, j] = activation_f(value)
-                values_f[i, j] = value
+    for i in range(N):
+         for j in range(N):
+            # bias[j] + X[i, 0] * theta[j, 0] + X[i, 1] * theta[j, 1] + X[i, 2] * theta[j, 2]
+            value = bias[j] + np.sum([A_prev[i, _] * theta[j, _] for _ in range(N)])
+            W_unmask[i, j] = activation_f(value)
+            values_f[i, j] = value
 
-        # masking W (elementwise product)
-        W = W_unmask * chord_mask(N)
-        values_f = values_f * chord_mask(N)
+    # masking W (elementwise product)
+    W = W_unmask * chord_mask(N)
+    values_f = values_f * chord_mask(N)
 
-        return W, values_f
+    return W, values_f
 
 
 def full_forward_g(X, n_layers, parameters):
+    """
+    The whole neural network g.
+    :param X: original data
+    :param n_layers: layers of g
+    :param parameters:
+    :return: The final V after N layers and the memory storing Z and A.
+    """
     memory_g = {}
     A_curr = X
 
@@ -186,6 +204,13 @@ def full_forward_g(X, n_layers, parameters):
 
 
 def full_forward_f(X, n_layers, parameters):
+    """
+    The core of the whole framework. Forward progress of neural network f.
+    :param X: original data
+    :param n_layers:
+    :param parameters:
+    :return: The final W and the memory storing Z and A.
+    """
     memory_f = {}
     A_curr = X
 
@@ -206,6 +231,14 @@ def full_forward_f(X, n_layers, parameters):
 
 
 def single_layer_backward_g(dA_curr, parameters, Z_curr, A_prev):
+    """
+    calculate the derivative of A_curr with respect to prev_A, W_curr and b_curr
+    :param dA_curr: from the following layer of g
+    :param parameters:
+    :param Z_curr: output of current layer
+    :param A_prev: activation result of previous layer.
+    :return:
+    """
     # A_prev is V
     m = A_prev.shape[1]
     xi = parameters['g']['weights']
@@ -220,6 +253,14 @@ def single_layer_backward_g(dA_curr, parameters, Z_curr, A_prev):
 
 
 def single_layer_backward_f(dA_curr, parameters, Z_curr, A_prev):
+    """
+    calculate the derivative of A_curr with respect to prev_A, W_curr and b_curr
+    :param dA_curr: from the following layer of f
+    :param parameters:
+    :param Z_curr: output of current layer
+    :param A_prev: activation result of previous layer.
+    :return:
+    """
     # A_prev is W
     m = A_prev.shape[1]
     theta = parameters['f']['weights']
@@ -234,6 +275,13 @@ def single_layer_backward_f(dA_curr, parameters, Z_curr, A_prev):
 
 
 def full_backward_propagation(V_gt, V, W, memory_f, memory_g, parameters, n_layers):
+    """
+    The core of the whole framework. backward progress of neural network f.
+    :param V_gt: Ground truth
+    :param V: The final V from g
+    :param W: The final W from f
+    :return:
+    """
 
     # necessary derivatives in matrix form
     V0 = np.dot(W, V)                         # (d, N)
@@ -273,3 +321,58 @@ def full_backward_propagation(V_gt, V, W, memory_f, memory_g, parameters, n_laye
         parameters['f']['grad_weights' + str(layer_idx_curr)] = dW_curr
         parameters['f']['grad_bias' + str(layer_idx_curr)] = db_curr
 
+    return parameters
+
+
+def update(parameters, n_layers):
+    """
+    updates parameters in g and f according to the update rule.
+    :param parameters:
+    :param n_layers:
+    :return:
+    """
+    #V
+    for layer_idx, layer in enumerate(n_layers):
+        parameters['g']["W" + str(layer_idx)] -= LRg * parameters["grad_weights" + str(layer_idx)]
+        parameters['g']["b" + str(layer_idx)] -= LRg * parameters["grad_bias" + str(layer_idx)]
+
+    #W
+    for layer_idx, layer in enumerate(n_layers):
+        parameters['f']["W" + str(layer_idx)] -= LRf * parameters["grad_weights" + str(layer_idx)]
+        parameters['f']["b" + str(layer_idx)] -= LRf * parameters["grad_bias" + str(layer_idx)]
+
+    return parameters
+
+
+def train(X, V_gt, n_layers, epochs):
+    """
+    Train a model.
+    :param X: original data
+    :param V_gt: ground truth
+    :param n_layers:
+    :param epochs:
+    :return:
+    """
+    init_f()
+    init_g()
+    cost_history = []
+
+    for i in range(epochs):
+        W, memory_f = full_forward_f(X, n_layers, parameters)
+        V, memory_g = full_forward_g(X, n_layers, parameters)
+        cost = calculate_loss(V_gt, V0)
+        cost_history.append(cost)
+
+        grads_values = full_backward_propagation(V_gt, V, W, memory_f, memory_g, parameters, n_layers)
+        params_values = update(parameters, n_layers)
+
+    return parameters, cost_history
+
+
+if __name__ == '__main__':
+    """
+    test on a 3X2 matrix
+    """
+    X = get_X(3, 2)
+    V_gt = get_Vgt(X)
+    train(X, V_gt, 2, 5)
