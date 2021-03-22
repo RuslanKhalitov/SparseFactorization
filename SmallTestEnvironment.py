@@ -1,12 +1,10 @@
 """
-An implementation of a small 1-layer model.
+An implementation of a multilayer module.
 Testing environment
 
 """
 
 # Imports
-import sys
-import math
 import numpy as np
 from ChordMatrix import chord_mask
 
