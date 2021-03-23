@@ -17,7 +17,7 @@ parameters = {
 }
 LRg = 0.01
 LRf = 0.01
-
+debug = True
 
 # Activation functions and its derivatives
 def relu(x):
@@ -89,7 +89,7 @@ def init_f():
     weights = np.zeros((N, d))
     bias = np.zeros(N)
     grad_weights = np.zeros((N * d, N, N))
-    grad_bias = np.zeros(N, N)
+    grad_bias = np.zeros((N, N))
 
     parameters['f']['weights'] = weights
     parameters['f']['bias'] = bias
@@ -107,7 +107,7 @@ def init_g():
     weights = np.zeros((d, d))
     bias = np.zeros(d)
     grad_weights = np.zeros((d * d, N, d))
-    grad_bias = np.zeros(N, d)
+    grad_bias = np.zeros((N, d))
 
     parameters['g']['weights'] = weights
     parameters['g']['bias'] = bias
@@ -141,6 +141,11 @@ def single_layer_forward_g(A_prev, parameters):
     xi = parameters['g']['weights']
     bias = parameters['g']['bias']
 
+    if debug:
+        print('Forward for g')
+        print("xi", xi)
+        print("bias", bias)
+
     # rows
     for i in range(N):
         # columns
@@ -161,15 +166,23 @@ def single_layer_forward_f(A_prev, parameters):
     :return: masked W (N X N)
     """
 
-    W_unmask = np.zeros(N, N)
-    values_f = np.zeros(N, N)
+    W_unmask = np.zeros((N, N))
+    values_f = np.zeros((N, N))
     theta = parameters['f']['weights']
     bias = parameters['f']['bias']
 
+    if debug:
+        print('Forward for f')
+        print("theta", theta)
+        print("bias", bias)
+        print('prev W', A_prev)
+
     for i in range(N):
-         for j in range(N):
+        for j in range(N):
             # bias[j] + X[i, 0] * theta[j, 0] + X[i, 1] * theta[j, 1] + X[i, 2] * theta[j, 2]
-            value = bias[j] + np.sum([A_prev[i, _] * theta[j, _] for _ in range(N)])
+            # multilayer is not of the same form
+            # value = bias[j] + np.sum([A_prev[i, _] * theta[j, _] for _ in range(N)])
+            value = bias[j] + np.sum([A_prev[i, _] * theta[j, _] for _ in range(d)])
             W_unmask[i, j] = activation_f(value)
             values_f[i, j] = value
 
@@ -191,7 +204,7 @@ def full_forward_g(X, n_layers, parameters):
     memory_g = {}
     A_curr = X
 
-    for idx, layer in enumerate(n_layers):
+    for idx, layer in enumerate(range(n_layers)):
         layer_idx = idx + 1
         A_prev = A_curr
 
@@ -214,7 +227,7 @@ def full_forward_f(X, n_layers, parameters):
     memory_f = {}
     A_curr = X
 
-    for idx, layer in enumerate(n_layers):
+    for idx, layer in enumerate(range(n_layers)):
         layer_idx = idx + 1
         A_prev = A_curr
 
@@ -286,10 +299,10 @@ def full_backward_propagation(V_gt, V, W, memory_f, memory_g, parameters, n_laye
     # necessary derivatives in matrix form
     V0 = np.dot(W, V)                         # (d, N)
     dj_dv0 = -2 * (V_gt - V0).T               # (d, N)
-    dv0_dw = V                                # (N, d)
+    dv0_dw = V.T                              # (N, d)
     dv0_dv = W                                # (N, N)
-    dj_dw = dj_dv0 * dv0_dw                   # (d, d)
-    dj_dv = dj_dv0 * dv0_dv                   # (d, N)
+    dj_dw = np.dot(dj_dv0, dv0_dw)            # (d, d)
+    dj_dv = np.dot(dj_dv0, dv0_dv)            # (d, N)
 
     # V
     for layer_idx_prev, layer in reversed(list(enumerate(n_layers))):
@@ -360,6 +373,7 @@ def train(X, V_gt, n_layers, epochs):
     for i in range(epochs):
         W, memory_f = full_forward_f(X, n_layers, parameters)
         V, memory_g = full_forward_g(X, n_layers, parameters)
+        V0 = np.dot(W, V)
         cost = calculate_loss(V_gt, V0)
         cost_history.append(cost)
 
@@ -375,4 +389,4 @@ if __name__ == '__main__':
     """
     X = get_X(3, 2)
     V_gt = get_Vgt(X)
-    train(X, V_gt, 2, 5)
+    train(X, V_gt, 1, 1)
