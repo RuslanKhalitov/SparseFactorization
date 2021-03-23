@@ -5,7 +5,7 @@ Author: ShuttleNet team (NTNU)
 import numpy as np
 
 
-def chord_mask(N, base=2, self_loop=False):
+def chord_mask(N, base=2, self_loop=True):
     ts = int(round(np.log(N)/np.log(base))) + 1
 
     if self_loop:

@@ -135,8 +135,8 @@ def single_layer_forward_g(A_prev, parameters):
     :return: V with the same dimesntion with X
     """
     # V
-    V = np.zeros(N, d)
-    values_g = np.zeros(N, d)
+    V = np.zeros((N, d))
+    values_g = np.zeros((N, d))
     assert np.shape(V) == np.shape(A_prev), "V and X have different size"
     xi = parameters['g']['weights']
     bias = parameters['g']['bias']
@@ -299,7 +299,7 @@ def full_backward_propagation(V_gt, V, W, memory_f, memory_g, parameters, n_laye
     # necessary derivatives in matrix form
     V0 = np.dot(W, V)                         # (d, N)
     dj_dv0 = -2 * (V_gt - V0).T               # (d, N)
-    dv0_dw = V.T                              # (N, d)
+    dv0_dw = V                                # (N, d)
     dv0_dv = W                                # (N, N)
     dj_dw = np.dot(dj_dv0, dv0_dw)            # (d, d)
     dj_dv = np.dot(dj_dv0, dv0_dv)            # (d, N)
