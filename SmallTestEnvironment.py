@@ -17,7 +17,7 @@ parameters = {
 }
 LRg = 0.01
 LRf = 0.01
-debug = True
+debug = False
 
 # Activation functions and its derivatives
 def relu(x):
@@ -135,9 +135,9 @@ def single_layer_forward_g(A_prev, parameters):
     :return: V with the same dimesntion with X
     """
     # V
-    V = np.zeros((N, d))
-    values_g = np.zeros((N, d))
-    assert np.shape(V) == np.shape(A_prev), "V and X have different size"
+    # V = np.zeros((N, d))
+    # values_g = np.zeros((N, d))
+    # assert np.shape(V) == np.shape(A_prev), "V and X have different size"
     xi = parameters['g']['weights']
     bias = parameters['g']['bias']
 
@@ -146,14 +146,8 @@ def single_layer_forward_g(A_prev, parameters):
         print("xi", xi)
         print("bias", bias)
 
-    # rows
-    for i in range(N):
-        # columns
-        for j in range(d):
-            # bias[j] + X[i, 0] * xi[j, 0] + X[i, 1] * xi[j, 1]
-            value = bias[j] + np.sum([A_prev[i, _] * xi[j, _] for _ in range(d)])
-            V[i, j] = activation_g(value)
-            values_g[i, j] = value
+    values_g = np.dot(A_prev, xi.T) + bias
+    V = activation_g(values_g)
 
     return V, values_g
 
@@ -165,9 +159,9 @@ def single_layer_forward_f(A_prev, parameters):
     :param parameters:
     :return: masked W (N X N)
     """
-
-    W_unmask = np.zeros((N, N))
-    values_f = np.zeros((N, N))
+    #
+    # W_unmask = np.zeros((N, N))
+    # values_f = np.zeros((N, N))
     theta = parameters['f']['weights']
     bias = parameters['f']['bias']
 
@@ -177,18 +171,13 @@ def single_layer_forward_f(A_prev, parameters):
         print("bias", bias)
         print('prev W', A_prev)
 
-    for i in range(N):
-        for j in range(N):
-            # bias[j] + X[i, 0] * theta[j, 0] + X[i, 1] * theta[j, 1] + X[i, 2] * theta[j, 2]
-            # multilayer is not of the same form
-            # value = bias[j] + np.sum([A_prev[i, _] * theta[j, _] for _ in range(N)])
-            value = bias[j] + np.sum([A_prev[i, _] * theta[j, _] for _ in range(d)])
-            W_unmask[i, j] = activation_f(value)
-            values_f[i, j] = value
+    values_f = np.dot(A_prev, theta.T) + bias
+    W_unmask = activation_f(values_f)
 
     # masking W (elementwise product)
-    W = W_unmask * chord_mask(N)
-    values_f = values_f * chord_mask(N)
+    mask = chord_mask(N)
+    W = W_unmask * mask
+    values_f = values_f * mask
 
     return W, values_f
 
@@ -382,11 +371,11 @@ def train(X, V_gt, n_layers, epochs):
 
     return parameters, cost_history
 
-
-if __name__ == '__main__':
-    """
-    test on a 3X2 matrix
-    """
-    X = get_X(3, 2)
-    V_gt = get_Vgt(X)
-    train(X, V_gt, 1, 1)
+#
+# if __name__ == '__main__':
+#     """
+#     test on a 3X2 matrix
+#     """
+#     X = get_X(3, 2)
+#     V_gt = get_Vgt(X)
+#     train(X, V_gt, 1, 1)
