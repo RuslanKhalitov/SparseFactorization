@@ -17,3 +17,6 @@ if __name__ == '__main__':
     print('V \n', V)
     V0 = np.dot(W, V)
     print('V0 \n', V0)
+
+    # backward
+    full_backward_propagation(X_gt, V, W, mem_W, mem_V, parameters, 1)
