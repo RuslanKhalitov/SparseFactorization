@@ -22,7 +22,7 @@ class SMFNet(torch.nn.Module):
         self.relu = torch.nn.ReLU()
 
     def make_chord(self, N):
-        chord_mask = torch.zeros(N, N)
+        chord_mask = torch.eye(N)
         for i in range(N):
             for k in range(2):
                 chord_mask[i][(i + np.power(2, k) - 1) % N] = 1
@@ -62,13 +62,16 @@ def training():
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-4)
     for i in range(1):
         V0 = model(X)
-        print(V0)
+        print("V0", V0)
         loss = criterion(X_gt, V0)
+        print('loss_value', loss)
         #optimizer.zero_grad()
         loss.backward()
         optimizer.step()
         print(model.f_linear.weight.grad)
         print(model.g_linear.weight.grad)
+        print(model.f_linear.bias.grad)
+        print(model.g_linear.bias.grad)
         #print(loss)
         #print(V0)
 

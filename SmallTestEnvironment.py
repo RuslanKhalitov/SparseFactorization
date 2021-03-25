@@ -17,7 +17,7 @@ parameters = {
 }
 LRg = 0.01
 LRf = 0.01
-debug = False
+debug = True
 
 
 # Activation functions and its derivatives
@@ -200,6 +200,11 @@ def full_forward_g(X, n_layers, parameters):
 
         A_curr, Z_curr = single_layer_forward_g(A_prev, parameters)   # (N, d), (N, d)
 
+        if debug:
+            print('g_forw A_prev \n', A_prev)
+            print('g_forw A_curr \n', A_curr)
+            print('g_forw Z_curr \n', Z_curr)
+
         memory_g["A_g" + str(idx)] = A_prev                           # (N, d)
         memory_g["Z_g" + str(layer_idx)] = Z_curr                     # (N, d)
 
@@ -223,7 +228,12 @@ def full_forward_f(X, n_layers, parameters):
 
         A_curr, Z_curr = single_layer_forward_f(A_prev, parameters)   # (N, N)
 
-        memory_f["A_f" + str(idx)] = A_prev                           # (N, N)
+        if debug:
+            print('f_forw A_prev \n', A_prev)
+            print('f_forw A_curr \n', A_curr)
+            print('f_forw Z_curr \n', Z_curr)
+
+        memory_f["A_f" + str(idx)] = A_prev                           # (N, d)
         memory_f["Z_f" + str(layer_idx)] = Z_curr                     # (N, N)
 
     return A_curr, memory_f
@@ -243,14 +253,25 @@ def single_layer_backward_g(dA_curr, parameters, Z_curr, A_prev):
     :return:
     """
     # A_prev is V
-    m = A_prev.shape[1]                                     # 1
     xi = parameters['g']['weights']                         # (d, d)
-    bias = parameters['g']['bias']                          # (1, d)
+    bias = parameters['g']['bias']                          # (d, 1)
 
-    dZ_curr = d_relu(dA_curr, Z_curr)                       # (d, N)
-    dW_curr = np.dot(dZ_curr, A_prev.T) / m
-    db_curr = np.sum(dZ_curr, axis=1, keepdims=True) / m
-    dA_prev = np.dot(xi.T, dZ_curr.T)
+    if debug:
+        print('g_back xi \n', xi)                           # (d, d)
+        print('g_back dA_curr \n', dA_curr)                 # (N, d)
+        print('g_back A_prev  \n', A_prev)                  # (N, d)
+        print('g_back Z_curr  \n', Z_curr)                  # (N, d)
+
+    dZ_curr = d_relu(dA_curr, Z_curr)                       # (N, d)
+    dW_curr = np.dot(dZ_curr.T, A_prev)                     # (d, d)
+    db_curr = np.sum(dZ_curr, axis=1, keepdims=True)        # (d, 1)
+    dA_prev = np.dot(xi, dZ_curr.T).T                       # (N, d) CHECK!
+
+    if debug:
+        print('g_back dZ_curr \n', dZ_curr)
+        print('g_back dW_curr \n', dW_curr)
+        print('g_back db_curr  \n', db_curr)
+        print('g_back dA_prev  \n', dA_prev)
 
     return dA_prev, dW_curr, db_curr
 
@@ -265,14 +286,25 @@ def single_layer_backward_f(dA_curr, parameters, Z_curr, A_prev):
     :return:
     """
     # A_prev is W
-    m = A_prev.shape[1]
-    theta = parameters['f']['weights']
-    bias = parameters['f']['bias']
+    theta = parameters['f']['weights']                      # (N, d)
+    bias = parameters['f']['bias']                          # (N, 1)
 
-    dZ_curr = d_relu(dA_curr, Z_curr)
-    dW_curr = np.dot(dZ_curr, A_prev) / m
-    db_curr = np.sum(dZ_curr, axis=1, keepdims=True) / m
-    dA_prev = np.dot(theta.T, dZ_curr.T)
+    if debug:
+        print('f_back theta \n', theta)
+        print('f_back dA_curr \n', dA_curr)                 # (N, N)
+        print('f_back A_prev  \n', A_prev)                  # (N, d)
+        print('f_back Z_curr  \n', Z_curr)                  # (N, N)
+
+    dZ_curr = d_relu(dA_curr, Z_curr)                       # (N, N)
+    dW_curr = np.dot(dZ_curr.T, A_prev)                     # (N, d)
+    db_curr = np.sum(dZ_curr, axis=1, keepdims=True)        # (N, 1)
+    dA_prev = np.dot(dZ_curr, theta).T                      # (N, d) CHECK!
+
+    if debug:
+        print('f_back dZ_curr \n', dZ_curr)
+        print('f_back dW_curr \n', dW_curr)
+        print('f_back db_curr  \n', db_curr)
+        print('f_back dA_prev  \n', dA_prev)
 
     return dA_prev, dW_curr, db_curr
 
@@ -285,41 +317,35 @@ def full_backward_propagation(V_gt, V, W, memory_f, memory_g, parameters, n_laye
     :param W: The final W from f
     :return:
     """
-
+    mask = chord_mask(N)                      # (N, N)
     # necessary derivatives in matrix form
-    # V0 = np.dot(W, V)                         # (N, d)
-    # dj_dv0 = -2 * (V_gt - V0)                 # (N, d)
-    # dv0_dw = V.T                              # (d, N)
-    # dv0_dv = W.T                              # (N, N)
-    # dj_dw = np.dot(dj_dv0, dv0_dw)            # (N, N)
-    # dj_dv = np.dot(dj_dv0, dv0_dv)            # (N, d)
-
     V0 = np.dot(W, V)                         # (N, d)
     dj_dv0 = -2 * (V_gt - V0)                 # (N, d)
     dv0_dw = V.T                              # (d, N)
     dv0_dv = W.T                              # (N, N)
     dj_dw = np.dot(dj_dv0, dv0_dw)            # (N, N)
     dj_dv = np.dot(dj_dv0.T, dv0_dv).T        # (N, d)
+    dj_dw = dj_dw * mask                      # (N, N)
 
     # V
     for layer_idx_prev, layer in reversed(list(enumerate(range(n_layers)))):
         layer_idx_curr = layer_idx_prev + 1
-        dA_curr = dj_dv
+        dA_curr = dj_dv                                         # (N, d)
 
-        A_prev = memory_g["A_g" + str(layer_idx_prev)]          # (
-        Z_curr = memory_g["Z_g" + str(layer_idx_curr)]
+        A_prev = memory_g["A_g" + str(layer_idx_prev)]          # (N, d)
+        Z_curr = memory_g["Z_g" + str(layer_idx_curr)]          # (N, d)
 
         dA_prev, dW_curr, db_curr = single_layer_backward_g(
             dA_curr, parameters, Z_curr, A_prev
         )
 
-        parameters['g']['grad_weights' + str(layer_idx_curr)] = dW_curr
+        parameters['g']['grad_weights' + str(layer_idx_curr)] = dW_curr  # (d, d)
         parameters['g']['grad_bias' + str(layer_idx_curr)] = db_curr
 
     # W
     for layer_idx_prev, layer in reversed(list(enumerate(range(n_layers)))):
         layer_idx_curr = layer_idx_prev + 1
-        dA_curr = dj_dw
+        dA_curr = dj_dw                                         # (N, N)
 
         A_prev = memory_f["A_f" + str(layer_idx_prev)]
         Z_curr = memory_f["Z_f" + str(layer_idx_curr)]
@@ -328,7 +354,7 @@ def full_backward_propagation(V_gt, V, W, memory_f, memory_g, parameters, n_laye
             dA_curr, parameters, Z_curr, A_prev
         )
 
-        parameters['f']['grad_weights' + str(layer_idx_curr)] = dW_curr
+        parameters['f']['grad_weights' + str(layer_idx_curr)] = dW_curr  # (N, N)
         parameters['f']['grad_bias' + str(layer_idx_curr)] = db_curr
 
     return parameters
