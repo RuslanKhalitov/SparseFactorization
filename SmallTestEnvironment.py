@@ -298,8 +298,8 @@ def full_backward_propagation(V_gt, V, W, memory_f, memory_g, parameters, n_laye
     dj_dv0 = -2 * (V_gt - V0)                 # (N, d)
     dv0_dw = V.T                              # (d, N)
     dv0_dv = W.T                              # (N, N)
-    dj_dw = np.dot(dj_dv0, dv0_dw)            # (d, N)
-    dj_dv = np.dot(dj_dv0.T, dv0_dv).T        # (d, d)
+    dj_dw = np.dot(dj_dv0, dv0_dw)            # (N, N)
+    dj_dv = np.dot(dj_dv0.T, dv0_dv).T        # (N, d)
 
     # V
     for layer_idx_prev, layer in reversed(list(enumerate(range(n_layers)))):
