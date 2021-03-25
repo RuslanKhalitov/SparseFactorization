@@ -20,3 +20,7 @@ if __name__ == '__main__':
 
     # backward
     full_backward_propagation(X_gt, V, W, mem_W, mem_V, parameters, 1)
+    print('Grad values of theta \n', parameters['f']['grad_weights1'])
+    print('Grad values of beta_f \n', parameters['f']['grad_bias1'])
+    print('Grad values of xi \n', parameters['g']['grad_weights1'])
+    print('Grad values of beta_g \n', parameters['g']['grad_bias1'])

@@ -247,7 +247,7 @@ def single_layer_backward_g(dA_curr, parameters, Z_curr, A_prev):
     xi = parameters['g']['weights']                         # (d, d)
     bias = parameters['g']['bias']                          # (1, d)
 
-    dZ_curr = d_relu(dA_curr, Z_curr)
+    dZ_curr = d_relu(dA_curr, Z_curr)                       # (d, N)
     dW_curr = np.dot(dZ_curr, A_prev.T) / m
     db_curr = np.sum(dZ_curr, axis=1, keepdims=True) / m
     dA_prev = np.dot(xi.T, dZ_curr.T)
@@ -270,7 +270,7 @@ def single_layer_backward_f(dA_curr, parameters, Z_curr, A_prev):
     bias = parameters['f']['bias']
 
     dZ_curr = d_relu(dA_curr, Z_curr)
-    dW_curr = np.dot(dZ_curr, A_prev.T) / m
+    dW_curr = np.dot(dZ_curr, A_prev) / m
     db_curr = np.sum(dZ_curr, axis=1, keepdims=True) / m
     dA_prev = np.dot(theta.T, dZ_curr.T)
 
@@ -287,12 +287,19 @@ def full_backward_propagation(V_gt, V, W, memory_f, memory_g, parameters, n_laye
     """
 
     # necessary derivatives in matrix form
+    # V0 = np.dot(W, V)                         # (N, d)
+    # dj_dv0 = -2 * (V_gt - V0)                 # (N, d)
+    # dv0_dw = V.T                              # (d, N)
+    # dv0_dv = W.T                              # (N, N)
+    # dj_dw = np.dot(dj_dv0, dv0_dw)            # (N, N)
+    # dj_dv = np.dot(dj_dv0, dv0_dv)            # (N, d)
+
     V0 = np.dot(W, V)                         # (N, d)
     dj_dv0 = -2 * (V_gt - V0)                 # (N, d)
     dv0_dw = V.T                              # (d, N)
     dv0_dv = W.T                              # (N, N)
-    dj_dw = np.dot(dj_dv0, dv0_dw)            # (N, N)
-    dj_dv = np.dot(dj_dv0, dv0_dv)            # (N, d)
+    dj_dw = np.dot(dj_dv0, dv0_dw)            # (d, N)
+    dj_dv = np.dot(dj_dv0.T, dv0_dv).T        # (d, d)
 
     # V
     for layer_idx_prev, layer in reversed(list(enumerate(range(n_layers)))):
