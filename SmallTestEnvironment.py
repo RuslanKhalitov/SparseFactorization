@@ -248,9 +248,9 @@ def single_layer_backward_g(dA_curr, parameters, Z_curr, A_prev):
     bias = parameters['g']['bias']                          # (1, d)
 
     dZ_curr = d_relu(dA_curr, Z_curr)
-    dW_curr = np.dot(dZ_curr, A_prev) / m
+    dW_curr = np.dot(dZ_curr, A_prev.T) / m
     db_curr = np.sum(dZ_curr, axis=1, keepdims=True) / m
-    dA_prev = np.dot(xi.T, dZ_curr)
+    dA_prev = np.dot(xi.T, dZ_curr.T)
 
     return dA_prev, dW_curr, db_curr
 
@@ -270,9 +270,9 @@ def single_layer_backward_f(dA_curr, parameters, Z_curr, A_prev):
     bias = parameters['f']['bias']
 
     dZ_curr = d_relu(dA_curr, Z_curr)
-    dW_curr = np.dot(dZ_curr, A_prev) / m
+    dW_curr = np.dot(dZ_curr, A_prev.T) / m
     db_curr = np.sum(dZ_curr, axis=1, keepdims=True) / m
-    dA_prev = np.dot(theta.T, dZ_curr)
+    dA_prev = np.dot(theta.T, dZ_curr.T)
 
     return dA_prev, dW_curr, db_curr
 
