@@ -23,6 +23,7 @@ class SMFNet(torch.nn.Module):
 
     def make_chord(self, N):
         chord_mask = torch.eye(N)
+        # chord_mask = torch.zeros((N, N))
         for i in range(N):
             for k in range(2):
                 chord_mask[i][(i + np.power(2, k) - 1) % N] = 1
@@ -68,9 +69,13 @@ def training():
         #optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        print('Theta grad')
         print(model.f_linear.weight.grad)
+        print('Xi grad')
         print(model.g_linear.weight.grad)
+        print('bias f grad')
         print(model.f_linear.bias.grad)
+        print('bias g grad')
         print(model.g_linear.bias.grad)
         #print(loss)
         #print(V0)

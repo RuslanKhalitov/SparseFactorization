@@ -17,7 +17,7 @@ parameters = {
 }
 LRg = 0.01
 LRf = 0.01
-debug = True
+debug = False
 
 
 # Activation functions and its derivatives
