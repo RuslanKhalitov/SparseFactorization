@@ -2,14 +2,14 @@ from SmallTestEnvironment import *
 import numpy as np
 
 if __name__ == '__main__':
-    parameters['g']['weights'] = np.array([[0.05, 0.02], [0.01, 0.03]])
+    parameters['g']['weights'] = np.array([[0.03, -0.03], [-0.2, 0.03]])
     parameters['g']['bias'] = np.array([0.03, 0.02])
 
-    parameters['f']['weights'] = np.array([[0.01, 0.02], [0.03, 0.04], [0.05, 0.06]])
-    parameters['f']['bias'] = np.array([0.01, 0.02, 0.03])
+    parameters['f']['weights'] = np.array([[0.1, 0.02], [-0.03, 0.04], [0.05, -0.6]])
+    parameters['f']['bias'] = np.array([0.2, -0.02, 0.03])
 
-    X = np.array([[1, -2], [-3, 4], [-2, 0]])
-    X_gt = np.array([[2, 4], [6, 8], [4, 0]])
+    X = np.array([[1.0000, -3.0000], [-30.0000, 4.0000], [-2.0000, 7.0000]])
+    X_gt = np.array([[2.0000, 6.0000], [60.0000, 8.0000], [4.0000, 14.0000]])
 
     W, mem_W = full_forward_f(X, 1, parameters)
     print('W \n', W)

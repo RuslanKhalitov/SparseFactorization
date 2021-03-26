@@ -17,7 +17,7 @@ parameters = {
 }
 LRg = 0.01
 LRf = 0.01
-debug = False
+debug = True
 
 
 # Activation functions and its derivatives
@@ -229,9 +229,9 @@ def full_forward_f(X, n_layers, parameters):
         A_curr, Z_curr = single_layer_forward_f(A_prev, parameters)   # (N, N)
 
         if debug:
-            print('f_forw A_prev \n', A_prev)
-            print('f_forw A_curr \n', A_curr)
-            print('f_forw Z_curr \n', Z_curr)
+            print('f_forw A_prev \n', A_prev)                         # (N, d)
+            print('f_forw A_curr \n', A_curr)                         # (N, N)
+            print('f_forw Z_curr \n', Z_curr)                         # (N, N)
 
         memory_f["A_f" + str(idx)] = A_prev                           # (N, d)
         memory_f["Z_f" + str(layer_idx)] = Z_curr                     # (N, N)
@@ -264,7 +264,7 @@ def single_layer_backward_g(dA_curr, parameters, Z_curr, A_prev):
 
     dZ_curr = d_relu(dA_curr, Z_curr)                       # (N, d)
     dW_curr = np.dot(dZ_curr.T, A_prev)                     # (d, d)
-    db_curr = np.sum(dZ_curr, axis=1, keepdims=True)        # (d, 1)
+    db_curr = np.sum(dZ_curr, axis=0, keepdims=True)        # (d, 1)
     dA_prev = np.dot(xi, dZ_curr.T).T                       # (N, d) CHECK!
 
     if debug:
@@ -296,9 +296,9 @@ def single_layer_backward_f(dA_curr, parameters, Z_curr, A_prev):
         print('f_back Z_curr  \n', Z_curr)                  # (N, N)
 
     dZ_curr = d_relu(dA_curr, Z_curr)                       # (N, N)
-    dW_curr = np.dot(dZ_curr.T, A_prev)                     # (N, d)
-    db_curr = np.sum(dZ_curr, axis=1, keepdims=True)        # (N, 1)
-    dA_prev = np.dot(dZ_curr, theta).T                      # (N, d) CHECK!
+    dW_curr = np.dot(dZ_curr.T, A_prev)                     # (N, N) * (N, d)
+    db_curr = np.sum(dZ_curr, axis=0, keepdims=True)        # (N, 1)
+    dA_prev = np.dot(dZ_curr, theta)                      # (N, d) CHECK!
 
     if debug:
         print('f_back dZ_curr \n', dZ_curr)
@@ -322,7 +322,7 @@ def full_backward_propagation(V_gt, V, W, memory_f, memory_g, parameters, n_laye
     V0 = np.dot(W, V)                         # (N, d)
     dj_dv0 = -2 * (V_gt - V0)                 # (N, d)
     dv0_dw = V.T                              # (d, N)
-    dv0_dv = W.T                              # (N, N)
+    dv0_dv = W                                # (N, N)
     dj_dw = np.dot(dj_dv0, dv0_dw)            # (N, N)
     dj_dv = np.dot(dj_dv0.T, dv0_dv).T        # (N, d)
     dj_dw = dj_dw * mask                      # (N, N)
@@ -347,8 +347,8 @@ def full_backward_propagation(V_gt, V, W, memory_f, memory_g, parameters, n_laye
         layer_idx_curr = layer_idx_prev + 1
         dA_curr = dj_dw                                         # (N, N)
 
-        A_prev = memory_f["A_f" + str(layer_idx_prev)]
-        Z_curr = memory_f["Z_f" + str(layer_idx_curr)]
+        A_prev = memory_f["A_f" + str(layer_idx_prev)]          # (N, N)
+        Z_curr = memory_f["Z_f" + str(layer_idx_curr)]          # (N, N)
 
         dA_prev, dW_curr, db_curr = single_layer_backward_f(
             dA_curr, parameters, Z_curr, A_prev

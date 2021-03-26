@@ -20,7 +20,7 @@ def chord_mask(N, base=2, self_loop=True):
     return ch
 
 
-# print(chord_mask(12, 2, True))
+print(chord_mask(12, 2, True))
 # print(chord_mask(17, 2, True))
 
 
