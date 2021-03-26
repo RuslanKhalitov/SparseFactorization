@@ -7,11 +7,11 @@ class SMFNet(torch.nn.Module):
         super(SMFNet, self).__init__()
         self.f_linear = torch.nn.Linear(D_in, H2, bias=False)
         self.g_linear = torch.nn.Linear(D_in, H1, bias=False)
-        theta = [[0.1, 0.02], [-0.03, 0.04], [0.05, -0.6]]
+        theta = [[0.01, 0.02], [0.03, 0.04], [0.05, 0.06]]
         theta = torch.tensor(theta)
-        xi = [[0.03, -0.03], [-0.2, 0.03]]
+        xi = [[0.05, 0.02], [0.01, 0.03]]
         xi = torch.tensor(xi)
-        f_bias = [0.2, -0.02, 0.03]
+        f_bias = [0.01, 0.02, 0.03]
         g_bias = [0.03, 0.02]
         f_bias = torch.tensor(f_bias)
         g_bias = torch.tensor(g_bias)
@@ -54,8 +54,8 @@ def training():
     N, D_in, H1, H2 = 3, 2, 2, 3
     #X = torch.randn(N, D_in)
     #X_gt = torch.randn(N, D_in)
-    X = [[1.0000, -3.0000], [-30.0000, 4.0000], [-2.0000, 7.0000]]
-    X_gt = [[2.0000, 6.0000], [60.0000, 8.0000], [4.0000, 14.0000]]
+    X = [[1.0000, -9.0000], [-3.0000, -14.0000], [-2.0000, 2.0000]]
+    X_gt = [[1.0000, 4.0000], [5.0000, -16.0000], [3.0000, 2.0000]]
     X = torch.tensor(X)
     X_gt = torch.tensor(X_gt)
     model = SMFNet(D_in, H1, H2)
@@ -64,6 +64,7 @@ def training():
     for i in range(1):
         V0 = model(X)
         print("V0", V0)
+        print("Xgt", X_gt)
         loss = criterion(X_gt, V0)
         print('loss_value', loss)
         #optimizer.zero_grad()

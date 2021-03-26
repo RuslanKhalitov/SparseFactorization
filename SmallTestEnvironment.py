@@ -146,6 +146,7 @@ def single_layer_forward_g(A_prev, parameters):
         print('Forward for g')
         print("xi", xi)
         print("bias", bias)
+        print("A_prev", A_prev)
 
     values_g = np.dot(A_prev, xi.T) + bias
     V = activation_g(values_g)
@@ -170,7 +171,7 @@ def single_layer_forward_f(A_prev, parameters):
         print('Forward for f')
         print("theta", theta)
         print("bias", bias)
-        print('prev W', A_prev)
+        print('A_prev', A_prev)
 
     values_f = np.dot(A_prev, theta.T) + bias
     W_unmask = activation_f(values_f)
@@ -201,9 +202,9 @@ def full_forward_g(X, n_layers, parameters):
         A_curr, Z_curr = single_layer_forward_g(A_prev, parameters)   # (N, d), (N, d)
 
         if debug:
-            print('g_forw A_prev \n', A_prev)
-            print('g_forw A_curr \n', A_curr)
-            print('g_forw Z_curr \n', Z_curr)
+            print('g_forw A_prev \n', A_prev)                         # (N, d)
+            print('g_forw A_curr \n', A_curr)                         # (N, d)
+            print('g_forw Z_curr \n', Z_curr)                         # (N, d)
 
         memory_g["A_g" + str(idx)] = A_prev                           # (N, d)
         memory_g["Z_g" + str(layer_idx)] = Z_curr                     # (N, d)
@@ -253,6 +254,7 @@ def single_layer_backward_g(dA_curr, parameters, Z_curr, A_prev):
     :return:
     """
     # A_prev is V
+    m = A_prev.shape[1]
     xi = parameters['g']['weights']                         # (d, d)
     bias = parameters['g']['bias']                          # (d, 1)
 
@@ -286,6 +288,7 @@ def single_layer_backward_f(dA_curr, parameters, Z_curr, A_prev):
     :return:
     """
     # A_prev is W
+    m = A_prev.shape[1]
     theta = parameters['f']['weights']                      # (N, d)
     bias = parameters['f']['bias']                          # (N, 1)
 
