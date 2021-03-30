@@ -254,7 +254,6 @@ def single_layer_backward_g(dA_curr, parameters, Z_curr, A_prev):
     :return:
     """
     # A_prev is V
-    m = A_prev.shape[1]
     xi = parameters['g']['weights']                         # (d, d)
     bias = parameters['g']['bias']                          # (d, 1)
 
@@ -288,7 +287,6 @@ def single_layer_backward_f(dA_curr, parameters, Z_curr, A_prev):
     :return:
     """
     # A_prev is W
-    m = A_prev.shape[1]
     theta = parameters['f']['weights']                      # (N, d)
     bias = parameters['f']['bias']                          # (N, 1)
 
