@@ -4,6 +4,11 @@ import numpy as np
 
 class SMFNet(torch.nn.Module):
     def __init__(self, D_in, H1, H2):
+        """
+        :param D_in: Embedded size of original data
+        :param H1: Hidden layer dimension of g
+        :param H2: Hidden layer dimension of f
+        """
         super(SMFNet, self).__init__()
         self.f_linear = torch.nn.Linear(D_in, H2, bias=False)
         self.g_linear = torch.nn.Linear(D_in, H1, bias=False)
@@ -22,8 +27,11 @@ class SMFNet(torch.nn.Module):
         self.relu = torch.nn.ReLU()
 
     def make_chord(self, N):
+        """
+        :param N: Length of original data
+        :return:
+        """
         chord_mask = torch.eye(N)
-        # chord_mask = torch.zeros((N, N))
         for i in range(N):
             for k in range(2):
                 chord_mask[i][(i + np.power(2, k) - 1) % N] = 1
@@ -31,6 +39,10 @@ class SMFNet(torch.nn.Module):
         return chord_mask
 
     def forward(self, X):
+        """
+        :param X: Nxd data
+        :return: V(M-1) M is the layer number.
+        """
         N = X.shape[0]
         V = torch.zeros(N, 2)
         W = torch.zeros(N, N)
@@ -42,45 +54,43 @@ class SMFNet(torch.nn.Module):
             W[i] = f_out
 
         print(V)
+        W = torch.mul(W, chord_mask)
         print(W)
-        W = W.mul(chord_mask)
-
         V0 = torch.matmul(W, V)
 
         return V0
 
 
 def training():
+    """
+    Test on a small case
+    :return:
+    """
     N, D_in, H1, H2 = 3, 2, 2, 3
     #X = torch.randn(N, D_in)
     #X_gt = torch.randn(N, D_in)
-    X = [[1.0000, -9.0000], [-3.0000, -14.0000], [-2.0000, 2.0000]]
-    X_gt = [[1.0000, 4.0000], [5.0000, -16.0000], [3.0000, 2.0000]]
+    X = [[2.0000, -1.0000], [-3.0000, -4.0000], [-2.0000, 2.0000]]
+    X_gt = [[1.0000, 4.0000], [5.0000, -6.0000], [3.0000, 2.0000]]
     X = torch.tensor(X)
     X_gt = torch.tensor(X_gt)
     model = SMFNet(D_in, H1, H2)
     criterion = torch.nn.MSELoss(reduction='sum')
-    optimizer = torch.optim.SGD(model.parameters(), lr=1e-4)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
     for i in range(1):
         V0 = model(X)
-        print("V0", V0)
-        print("Xgt", X_gt)
+        print(V0)
         loss = criterion(X_gt, V0)
-        print('loss_value', loss)
         #optimizer.zero_grad()
         loss.backward()
-        print('Theta grad')
-        print(model.f_linear.weight.grad)
-        print('Xi grad')
-        print(model.g_linear.weight.grad)
-        print('bias f grad')
-        print(model.f_linear.bias.grad)
-        print('bias g grad')
-        print(model.g_linear.bias.grad)
         optimizer.step()
-        #print(loss)
-        #print(V0)
+        print("weight")
+        print(model.f_linear.weight.grad)
+        print(model.f_linear.bias.grad)
+        print(model.g_linear.weight.grad)
+        print(model.g_linear.bias.grad)
 
 
 if __name__ == '__main__':
     training()
+
+
