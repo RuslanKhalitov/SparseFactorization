@@ -36,45 +36,14 @@ class SMFNet(torch.nn.Module):
         N = X.shape[0]
         W = [torch.zeros(N, N)]*n_layer
         chord_mask = self.make_chord(N)
-        V0 = self.relu(self.g_linear(X))
+        V0 = self.relu(self.g_linear(X.float()))
+        #print(V0)
         for m in range(n_layer):
-            F = self.relu(self.f_array[m](X))
+            F = self.relu(self.f_array[m](X.float()))
             W[m] = F*chord_mask
             V0 = torch.matmul(W[m], V0)
 
         return V0
 
-
-def training():
-    """
-    Test on a small case
-    :return:
-    """
-    N, D_in, H1, H2, n_layer = 16, 2, 2, 16, 4
-    X = torch.randn(N, D_in)
-    X_gt = torch.randn(N, D_in)
-    #X = [[2.0000, -1.0000], [-3.0000, -4.0000], [-2.0000, 2.0000]]
-    #X_gt = [[1.0000, 4.0000], [5.0000, -6.0000], [3.0000, 2.0000]]
-    #X = torch.tensor(X)
-    #X_gt = torch.tensor(X_gt)
-    model = SMFNet(D_in, H1, H2, n_layer)
-    criterion = torch.nn.MSELoss(reduction='sum')
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
-    for i in range(50):
-        V0 = model(X, n_layer)
-        #print(V0)
-        loss = criterion(X_gt, V0)
-        loss.backward()
-        optimizer.step()
-        print(loss)
-        #print("weight")
-        #print(model.f_array[0].weight.grad)
-        #print(model.f_array[0].bias.grad)
-        #print(model.g_linear.weight.grad)
-        #print(model.g_linear.bias.grad)
-
-
-if __name__ == '__main__':
-    training()
 
 
