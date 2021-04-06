@@ -1,6 +1,31 @@
+#!/usr/bin/env python
+
+# Importing the required packages
+import torch
+import random
+import os
+import time
+
+# Importing local supplementary files
 from SMF_torch import *
 from permute_data import *
-import torch
+
+# Globals
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def seed_everything(seed=1234):
+    """
+    Fixes random seeds, to get reproducible results.
+
+    :param seed: a random seed across all the used packages
+    """
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
 
 
 def training(X, X_gt):
@@ -25,6 +50,8 @@ def training(X, X_gt):
 
 
 if __name__ == '__main__':
+    seed_everything(1234)
+
     X, X_gt = generate_permute_data_sine(16, 16, noise=0.8)
     print(X)
     print(X_gt)

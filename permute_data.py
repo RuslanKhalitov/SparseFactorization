@@ -1,6 +1,19 @@
+import os
+import random
 import numpy as np
 import numbers
 import sklearn
+
+
+def seed_everything(seed=1234):
+    """
+    Fixes random seeds, to get reproducible results.
+
+    :param seed: a random seed across all the used packages
+    """
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
 
 
 def swap_columns(X, src_cols, tgt_cols):
@@ -62,6 +75,8 @@ def generate_permute_data_sine(N, d, sigma=0.1, noise=None):
         Y[ind, :] = X[ind, :]
     return X, Y
 
+
+seed_everything(1234)
 
 # np.random.seed(0)
 # X, Y = generate_permute_data_sine(100, 100, noise=0.5)
