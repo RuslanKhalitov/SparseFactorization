@@ -2,6 +2,7 @@ from SMF_torch import *
 from permute_data import *
 import torch
 
+
 def training(X, X_gt):
     """
     Test on a small case
@@ -25,12 +26,14 @@ def training(X, X_gt):
 
 if __name__ == '__main__':
     X, X_gt = generate_permute_data_sine(16, 16, noise=0.8)
-    X = torch.tensor(X)
-    X_gt = torch.tensor(X_gt)
-    V0 = training(X, X_gt)
-    V0 = V0.detach().numpy()
-    import matplotlib.pyplot as plt
-    i = 10
-    plt.plot(X_gt[i, :], 'r')
-    plt.plot(V0[i, :], 'b')
-    plt.show()
+    print(X)
+    print(X_gt)
+    # X = torch.tensor(X)
+    # X_gt = torch.tensor(X_gt)
+    # V0 = training(X, X_gt)
+    # V0 = V0.detach().numpy()
+    # import matplotlib.pyplot as plt
+    # i = 10
+    # plt.plot(X_gt[i, :], 'r')
+    # plt.plot(V0[i, :], 'b')
+    # plt.show()

@@ -26,7 +26,7 @@ def generate_permute_data_gaussian(N, d, noise=None):
     assert d > permuate_range, "d must be larger than %d" % permuate_range
     swap_columns(Y, np.arange(0, permuate_range), np.arange(d-permuate_range, d))
     if noise is not None:
-        assert (isinstance(noise, numbers.Number) and 0 < noise < 1), "noise must a number between 0 and 1"
+        assert (isinstance(noise, numbers.Number) and 0 < noise < 1), "noise must be a number between 0 and 1"
         ind = np.random.choice(np.arange(N), round(N * noise))
         Y[ind, :] = X[ind, :]
     return X, Y
@@ -39,7 +39,7 @@ def generate_permute_data_iris(noise=None):
     Y = X.copy()
     Y[:, [0]] = Y[:, [3]]
     if noise is not None:
-        assert (isinstance(noise, numbers.Number) and 0 < noise < 1), "noise must a number between 0 and 1"
+        assert (isinstance(noise, numbers.Number) and 0 < noise < 1), "noise must be a number between 0 and 1"
         ind = np.random.choice(np.arange(N), round(N * noise))
         Y[ind, :] = X[ind, :]
     return X, Y
@@ -63,10 +63,10 @@ def generate_permute_data_sine(N, d, sigma=0.1, noise=None):
     return X, Y
 
 
-np.random.seed(0)
-X, Y = generate_permute_data_sine(100, 100, noise=0.5)
-import matplotlib.pyplot as plt
-i = 10
-plt.plot(X[i, :], 'r')
-plt.plot(Y[i, :], 'b')
-plt.show()
+# np.random.seed(0)
+# X, Y = generate_permute_data_sine(100, 100, noise=0.5)
+# import matplotlib.pyplot as plt
+# i = 10
+# plt.plot(X[i, :], 'r')
+# plt.plot(Y[i, :], 'b')
+# plt.show()
