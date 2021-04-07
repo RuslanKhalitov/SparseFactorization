@@ -82,30 +82,29 @@ if __name__ == '__main__':
     N_samples_test = 500
     N_samples_train = 1000
     N_all = N_samples_test + N_samples_train
-    N = 10
-    d = 3
+    N = 16
+    d = 5
 
     # Generate permute gaussian data
     dirName = 'permute_gaussian'
     try:
-        os.makedirs('SparseFactorization/train/' + dirName)
-        os.makedirs('SparseFactorization/test/' + dirName)
+        os.makedirs('SparseFactorization/train/' + dirName + '/X')
+        os.makedirs('SparseFactorization/train/' + dirName + '/Y')
+        os.makedirs('SparseFactorization/test/' + dirName + '/X')
+        os.makedirs('SparseFactorization/test/' + dirName + '/Y')
     except FileExistsError:
         print("Directories already exist")
 
     for i in range(N_all):
         X, Y = generate_permute_data_gaussian(N, d, noise=0.95)
         if i <= N_samples_train:
-            np.savetxt(f"SparseFactorization/train/permute_gaussian/X_{i}.csv", X, delimiter=",")
-            np.savetxt(f"SparseFactorization/train/permute_gaussian/Y_{i}.csv", Y, delimiter=",")
+            path_X = f"SparseFactorization/train/permute_gaussian/X/X_{i}.csv"
+            path_Y = f"SparseFactorization/train/permute_gaussian/Y/Y_{i}.csv"
+            np.savetxt(path_X, X, delimiter=",")
+            np.savetxt(path_Y, Y, delimiter=",")
         else:
-            np.savetxt(f"SparseFactorization/test/permute_gaussian/X_{i}.csv", X, delimiter=",")
-            np.savetxt(f"SparseFactorization/test/permute_gaussian/Y_{i}.csv", Y, delimiter=",")
+            path_X = f"SparseFactorization/test/permute_gaussian/X/X_{i}.csv"
+            path_Y = f"SparseFactorization/test/permute_gaussian/Y/Y_{i}.csv"
+            np.savetxt(path_X, X, delimiter=",")
+            np.savetxt(path_Y, Y, delimiter=",")
 
-    # np.random.seed(0)
-# X, Y = generate_permute_data_sine(100, 100, noise=0.5)
-# import matplotlib.pyplot as plt
-# i = 10
-# plt.plot(X[i, :], 'r')
-# plt.plot(Y[i, :], 'b')
-# plt.show()
