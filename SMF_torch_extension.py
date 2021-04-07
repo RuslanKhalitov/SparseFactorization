@@ -15,12 +15,15 @@ class SMFNet(torch.nn.Module):
         self.f_array = []
         self.g_linears = torch.nn.ModuleList(torch.nn.Linear(D_in, H1) for d in range(depth))
         for m in range(n_layer):
-            f_linears = torch.nn.ModuleList(torch.nn.Linear(D_in, D_in) for d in range(depth-1))
+            f_linears = torch.nn.ModuleList(torch.nn.Linear(D_in, D_in) for d in range(depth - 1))
             f_linears.append(torch.nn.Linear(D_in, H2))
             self.f_array.append(f_linears)
         self.relu = torch.nn.ReLU()
+        self.n_layer = n_layer
+        self.depth = depth
 
-    def make_chord(self, N):
+    @staticmethod
+    def make_chord(N):
         """
         :param N: Length of original data
         :return:
@@ -32,26 +35,22 @@ class SMFNet(torch.nn.Module):
 
         return chord_mask
 
-    def forward(self, X, n_layer, depth):
+    def forward(self, X):
         """
         :param X: Nxd data
         :return: V(M-1) M is the layer number.
         """
         N = X.shape[0]
-        W = [torch.zeros(N, N)]*n_layer
+        W = [torch.zeros(N, N)] * self.n_layer
         chord_mask = self.make_chord(N)
-        #print(V0)
         V0 = X.float()
-        for d in range(depth):
+        for d in range(self.depth):
             V0 = self.relu(self.g_linears[d](V0))
-        for m in range(n_layer):
+        for m in range(self.n_layer):
             F = X.float()
-            for d in range(depth):
+            for d in range(self.depth):
                 F = self.relu(self.f_array[m][d](F))
-            W[m] = F*chord_mask
+            W[m] = F * chord_mask
             V0 = torch.matmul(W[m], V0)
 
         return V0
-
-
-
