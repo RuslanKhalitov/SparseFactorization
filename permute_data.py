@@ -1,4 +1,5 @@
 import os
+import tqdm
 import random
 import numpy as np
 import numbers
@@ -76,9 +77,32 @@ def generate_permute_data_sine(N, d, sigma=0.1, noise=None):
     return X, Y
 
 
-seed_everything(1234)
+if __name__ == '__main__':
+    seed_everything(1234)
+    N_samples_test = 500
+    N_samples_train = 1000
+    N_all = N_samples_test + N_samples_train
+    N = 10
+    d = 3
 
-# np.random.seed(0)
+    # Generate permute gaussian data
+    dirName = 'permute_gaussian'
+    try:
+        os.makedirs('SparseFactorization/train/' + dirName)
+        os.makedirs('SparseFactorization/test/' + dirName)
+    except FileExistsError:
+        print("Directories already exist")
+
+    for i in range(N_all):
+        X, Y = generate_permute_data_gaussian(N, d, noise=0.95)
+        if i <= N_samples_train:
+            np.savetxt(f"SparseFactorization/train/permute_gaussian/X_{i}.csv", X, delimiter=",")
+            np.savetxt(f"SparseFactorization/train/permute_gaussian/Y_{i}.csv", Y, delimiter=",")
+        else:
+            np.savetxt(f"SparseFactorization/test/permute_gaussian/X_{i}.csv", X, delimiter=",")
+            np.savetxt(f"SparseFactorization/test/permute_gaussian/Y_{i}.csv", Y, delimiter=",")
+
+    # np.random.seed(0)
 # X, Y = generate_permute_data_sine(100, 100, noise=0.5)
 # import matplotlib.pyplot as plt
 # i = 10
