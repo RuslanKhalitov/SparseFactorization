@@ -2,16 +2,23 @@
 
 # Importing the required packages
 import torch
+import numpy as np
 import random
 import os
 import time
+import multiprocessing
 
 # Importing local supplementary files
-from SMF_torch import *
-from permute_data import *
+from SMF_torch_extension import SMFNet
 
 # Globals
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+BATCH_SIZE = 1
+LEARNING_RATE = 1e-3
+LR_STEP = 1
+LR_FACTOR = 0.33  # for Adam optimization
+NUM_WORKERS = multiprocessing.cpu_count()  # for parallel inference
+NUM_EPOCHS = 10
 
 
 def seed_everything(seed=1234):
