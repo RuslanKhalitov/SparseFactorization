@@ -86,10 +86,10 @@ def load_data():
                                    )
 
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE,
-                              shuffle=True, num_workers=NUM_WORKERS, drop_last=True)
+                              shuffle=True, drop_last=True)
 
     test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE,
-                             shuffle=False, num_workers=NUM_WORKERS, drop_last=False)
+                             shuffle=False, drop_last=False)
 
     return train_loader, test_loader
 

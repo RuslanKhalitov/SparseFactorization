@@ -59,7 +59,7 @@ class SMFNet(torch.nn.Module):
         V0 = self.g_linears(X.float())
         for m in range(self.n_layer):
             F = self.f_array[m](X.float())
-            W[m] = F*chord_mask
+            W[m] = F * chord_mask
             V0 = torch.matmul(W[m], V0)
 
         return V0
