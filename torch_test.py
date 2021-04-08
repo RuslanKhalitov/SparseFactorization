@@ -189,7 +189,7 @@ if __name__ == '__main__':
     assert str(os.getcwd()) == YOUR_DIRECTORY_NAME,\
         "Please specify parameter YOUR_DIRECTORY_NAME"
 
-    N, D_in, H1, H2, n_layer, depth = 16, 5, 16, 16, 4, 2
+    N, D_in, H1, H2, n_layer, depth = 16, 5, 5, 16, 4, 2
     model = SMFNet(D_in, H1, H2, n_layer, depth)
 
     # for param in model.parameters():

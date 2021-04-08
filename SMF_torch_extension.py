@@ -63,6 +63,3 @@ class SMFNet(torch.nn.Module):
             V0 = torch.matmul(W[m], V0)
 
         return V0
-
-
-
