@@ -89,7 +89,7 @@ def load_data():
                               shuffle=True, num_workers=NUM_WORKERS, drop_last=True)
 
     test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE,
-                             shuffle=True, num_workers=NUM_WORKERS, drop_last=True)
+                             shuffle=False, num_workers=NUM_WORKERS, drop_last=False)
 
     return train_loader, test_loader
 
@@ -161,7 +161,7 @@ def train(model, epoch, train_loader, test_loader, criterion, optimizer):
 
             with torch.no_grad():
                 for j, (X, X_gt) in enumerate(test_loader):
-                    output = model(X).squeeze()
+                    output = model(X)
                     loss = criterion(output, X_gt.float())
                     losses_ev.update(loss.data.item(), X.size(0))
 
@@ -189,11 +189,11 @@ if __name__ == '__main__':
     assert str(os.getcwd()) == YOUR_DIRECTORY_NAME,\
         "Please specify parameter YOUR_DIRECTORY_NAME"
 
-    N, D_in, H1, H2, n_layer, depth = 16, 5, 32, 16, 4, 2
+    N, D_in, H1, H2, n_layer, depth = 16, 5, 16, 16, 4, 2
     model = SMFNet(D_in, H1, H2, n_layer, depth)
 
-    for param in model.parameters():
-        param.requires_grad = True
+    # for param in model.parameters():
+    #     param.requires_grad = True
 
     criterion = torch.nn.MSELoss(reduction='sum')
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
