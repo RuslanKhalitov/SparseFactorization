@@ -6,10 +6,10 @@ import random
 import os
 import time
 import multiprocessing
-# from permute_data import *
+from typing import List, Dict
 
 # Importing local supplementary files
-from SMF_torch_extension import SMFNet
+from SMF_torch_deep import *
 
 # Globals
 YOUR_DIRECTORY_NAME = '/Users/ruslanhalitov/PycharmProjects'  # !!! CHANGE IT
@@ -21,10 +21,16 @@ LR_FACTOR = 0.33  # for Adam optimization
 NUM_WORKERS = multiprocessing.cpu_count()  # for parallel inference
 NUM_EPOCHS = 10
 NUM_ITERATIONS = 1000
-INFERENCE_FREQUENCY = 300
-LOGGING_FREQUENCY = 100
-VAL_LOGGING_FREQUENCY = 30
+INFERENCE_FREQUENCY = 10000
+LOGGING_FREQUENCY = 20
+VAL_LOGGING_FREQUENCY = 20
 MAX_STEPS_PER_EPOCH = 10**5
+
+
+cfg: Dict[str, List[int]] = {
+    'f': [16, 32, 16, N],
+    'g': [16, 32, 16, d]
+}
 
 
 def seed_everything(seed=1234):
@@ -76,13 +82,13 @@ def load_data():
     :return: train dataloader, test_dataloader
     """
     train_dataset = DatasetCreator(mode='train',
-                                   X_folder='SparseFactorization/train/permute_gaussian/X',
-                                   Y_folder='SparseFactorization/train/permute_gaussian/Y',
+                                   X_folder='SparseFactorization/train/generate_exp_data/X',
+                                   Y_folder='SparseFactorization/train/generate_exp_data/Y',
                                    )
 
     test_dataset  = DatasetCreator(mode='test',
-                                   X_folder='SparseFactorization/train/permute_gaussian/X',
-                                   Y_folder='SparseFactorization/train/permute_gaussian/Y',
+                                   X_folder='SparseFactorization/train/generate_exp_data/X',
+                                   Y_folder='SparseFactorization/train/generate_exp_data/Y',
                                    )
 
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE,
@@ -128,6 +134,7 @@ def train(model, epoch, train_loader, test_loader, criterion, optimizer):
     num_steps = min(len(train_loader), MAX_STEPS_PER_EPOCH)
     batch_time = AverageMeter()
     losses = AverageMeter()
+    losses_ev = AverageMeter()
     best_val_score = 10**5
     end = time.time()
 
@@ -151,7 +158,7 @@ def train(model, epoch, train_loader, test_loader, criterion, optimizer):
             print(train_info)
 
         # Validation
-        if i % INFERENCE_FREQUENCY == 0:
+        if i % INFERENCE_FREQUENCY == INFERENCE_FREQUENCY - 1:
             print('Model evaluation')
             print('-' * 30)
 
@@ -189,9 +196,11 @@ if __name__ == '__main__':
     assert str(os.getcwd()) == YOUR_DIRECTORY_NAME,\
         "Please specify parameter YOUR_DIRECTORY_NAME"
 
-    D_in, H1, H2, n_layer = 5, 5, 16, 4
-    model = SMFNet(D_in, H1, H2, n_layer)
-
+    model = SMF_full(cfg)
+    print(model)
+    # for name, param in model.named_parameters():
+    #     if param.requires_grad:
+    #         print(name, param.data)
     # for param in model.parameters():
     #     param.requires_grad = True
 

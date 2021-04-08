@@ -24,6 +24,32 @@ def swap_columns(X, src_cols, tgt_cols):
     X[:, tgt_cols] = temp_src
 
 
+# def generate_exp_data(N, d):
+#     """
+#     Generate a dataset and performs an elementwise transformation.
+#     :param N: number of data instances
+#     :param d: dimensionality
+#     :param noise: out-of-pattern noise level
+#     :return: (N x d), (N x d)
+#     """
+#     X = np.random.randn(N, d)
+#     Y = np.exp(X)
+#     return X, Y
+
+
+def generate_exp_data(N, d):
+    """
+    Generate a dataset and performs an elementwise transformation.
+    :param N: number of data instances
+    :param d: dimensionality
+    :param noise: out-of-pattern noise level
+    :return: (N x d), (N x d)
+    """
+    X = np.random.randn(N, d)
+    Y = X * 2 + 3
+    return X, Y
+
+
 def generate_permute_data_gaussian(N, d, noise=None):
     """
     Generate a permuted data set from Gaussian distribution,
@@ -77,6 +103,42 @@ def generate_permute_data_sine(N, d, sigma=0.1, noise=None):
     return X, Y
 
 
+def generate_folders_data(N, d, N_all, N_samples_train, Generator=generate_exp_data,
+                          sigma=None, noise=None, dirName='generate_exp_data'):
+    """
+    Creates folders and fills in generated data.
+    :param N_all: number of samples
+    :param N_samples_train: number of training samples
+    :param N: number of data instances
+    :param d: dimensionality
+    :param Generator:
+    :param sigma: optional parameter for generate_permute_data_sine
+    :param noise: noise
+    :param dirName: directory name within /train and /test
+    :return: None
+    """
+    try:
+        os.makedirs(f'SparseFactorization/train/{dirName}/X')
+        os.makedirs(f'SparseFactorization/train/{dirName}/Y')
+        os.makedirs(f'SparseFactorization/test/{dirName}/X')
+        os.makedirs(f'SparseFactorization/test/{dirName}/Y')
+    except FileExistsError:
+        print("Directories already exist")
+
+    for i in range(N_all):
+        X, Y = Generator(N, d)
+        if i <= N_samples_train:
+            path_X = f"SparseFactorization/train/{dirName}/X/X_{i}.csv"
+            path_Y = f"SparseFactorization/train/{dirName}/Y/Y_{i}.csv"
+            np.savetxt(path_X, X, delimiter=",")
+            np.savetxt(path_Y, Y, delimiter=",")
+        else:
+            path_X = f"SparseFactorization/test/{dirName}/X/X_{i}.csv"
+            path_Y = f"SparseFactorization/test/{dirName}/Y/Y_{i}.csv"
+            np.savetxt(path_X, X, delimiter=",")
+            np.savetxt(path_Y, Y, delimiter=",")
+
+
 if __name__ == '__main__':
     seed_everything(1234)
     N_samples_test = 500
@@ -85,26 +147,9 @@ if __name__ == '__main__':
     N = 16
     d = 5
 
-    # Generate permute gaussian data
-    dirName = 'permute_gaussian'
-    try:
-        os.makedirs('SparseFactorization/train/' + dirName + '/X')
-        os.makedirs('SparseFactorization/train/' + dirName + '/Y')
-        os.makedirs('SparseFactorization/test/' + dirName + '/X')
-        os.makedirs('SparseFactorization/test/' + dirName + '/Y')
-    except FileExistsError:
-        print("Directories already exist")
+    generate_folders_data(N, d, N_all, N_samples_train, Generator=generate_exp_data,
+                          sigma=None, noise=None, dirName='generate_exp_data')
 
-    for i in range(N_all):
-        X, Y = generate_permute_data_gaussian(N, d, noise=0.95)
-        if i <= N_samples_train:
-            path_X = f"SparseFactorization/train/permute_gaussian/X/X_{i}.csv"
-            path_Y = f"SparseFactorization/train/permute_gaussian/Y/Y_{i}.csv"
-            np.savetxt(path_X, X, delimiter=",")
-            np.savetxt(path_Y, Y, delimiter=",")
-        else:
-            path_X = f"SparseFactorization/test/permute_gaussian/X/X_{i}.csv"
-            path_Y = f"SparseFactorization/test/permute_gaussian/Y/Y_{i}.csv"
-            np.savetxt(path_X, X, delimiter=",")
-            np.savetxt(path_Y, Y, delimiter=",")
+
+
 
