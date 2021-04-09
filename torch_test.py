@@ -82,13 +82,13 @@ def load_data():
     :return: train dataloader, test_dataloader
     """
     train_dataset = DatasetCreator(mode='train',
-                                   X_folder='SparseFactorization/train/generate_exp_data/X',
-                                   Y_folder='SparseFactorization/train/generate_exp_data/Y',
+                                   X_folder='SparseFactorization/train/generate_permute_data_gaussian/X',
+                                   Y_folder='SparseFactorization/train/generate_permute_data_gaussian/Y',
                                    )
 
     test_dataset  = DatasetCreator(mode='test',
-                                   X_folder='SparseFactorization/train/generate_exp_data/X',
-                                   Y_folder='SparseFactorization/train/generate_exp_data/Y',
+                                   X_folder='SparseFactorization/train/generate_permute_data_gaussian/X',
+                                   Y_folder='SparseFactorization/train/generate_permute_data_gaussian/Y',
                                    )
 
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE,
@@ -197,24 +197,24 @@ if __name__ == '__main__':
         "Please specify parameter YOUR_DIRECTORY_NAME"
 
     model = SMF_full(cfg)
-    print(model)
-    for name, param in model.named_parameters():
-        if param.requires_grad:
-            print(name, param.data)
+    # print(model)
+    # for name, param in model.named_parameters():
+    #     if param.requires_grad:
+    #         print(name, param.data)
     # for param in model.parameters():
     #     param.requires_grad = True
 
-    # criterion = torch.nn.MSELoss(reduction='sum')
-    # optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    # train_loader, test_loader = load_data()
-    #
-    # for epoch in range(1, NUM_EPOCHS + 1):
-    #     print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
-    #     print('-' * 30)
-    #
-    #     train(model, epoch, train_loader, test_loader, criterion, optimizer)
-    #
-    #     torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
+    criterion = torch.nn.MSELoss(reduction='sum')
+    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    train_loader, test_loader = load_data()
+
+    for epoch in range(1, NUM_EPOCHS + 1):
+        print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
+        print('-' * 30)
+
+        train(model, epoch, train_loader, test_loader, criterion, optimizer)
+
+        torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
 
     # import matplotlib.pyplot as plt
     # i = 10

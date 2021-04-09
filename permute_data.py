@@ -147,8 +147,8 @@ if __name__ == '__main__':
     N = 16
     d = 5
 
-    generate_folders_data(N, d, N_all, N_samples_train, Generator=generate_exp_data,
-                          sigma=None, noise=None, dirName='generate_exp_data')
+    generate_folders_data(N, d, N_all, N_samples_train, Generator=generate_permute_data_gaussian,
+                          sigma=None, noise=None, dirName='generate_permute_data_gaussian')
 
 
 
