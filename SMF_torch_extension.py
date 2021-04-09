@@ -64,3 +64,7 @@ class SMFNet(torch.nn.Module):
             V0 = torch.matmul(W[m], V0)
 
         return V0
+
+
+# model = SMFNet(5, 10, 15, 4)
+# print(model)

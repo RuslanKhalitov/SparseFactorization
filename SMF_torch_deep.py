@@ -52,8 +52,8 @@ class SMFNet(nn.Module):
         chord_mask = make_chord(N)
         V0 = self.g(X.float())
         for m in range(len(self.fs)):
-            W = self.fs[m](X.float())
-            # W = self.fs[m](X.float()) * chord_mask
+            # W = self.fs[m](X.float())
+            W = self.fs[m](X.float()) * chord_mask
             V0 = torch.matmul(W, V0)
 
         return V0

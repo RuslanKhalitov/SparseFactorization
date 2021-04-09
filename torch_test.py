@@ -198,23 +198,23 @@ if __name__ == '__main__':
 
     model = SMF_full(cfg)
     print(model)
-    # for name, param in model.named_parameters():
-    #     if param.requires_grad:
-    #         print(name, param.data)
+    for name, param in model.named_parameters():
+        if param.requires_grad:
+            print(name, param.data)
     # for param in model.parameters():
     #     param.requires_grad = True
 
-    criterion = torch.nn.MSELoss(reduction='sum')
-    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    train_loader, test_loader = load_data()
-
-    for epoch in range(1, NUM_EPOCHS + 1):
-        print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
-        print('-' * 30)
-
-        train(model, epoch, train_loader, test_loader, criterion, optimizer)
-
-        torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
+    # criterion = torch.nn.MSELoss(reduction='sum')
+    # optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    # train_loader, test_loader = load_data()
+    #
+    # for epoch in range(1, NUM_EPOCHS + 1):
+    #     print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
+    #     print('-' * 30)
+    #
+    #     train(model, epoch, train_loader, test_loader, criterion, optimizer)
+    #
+    #     torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
 
     # import matplotlib.pyplot as plt
     # i = 10
