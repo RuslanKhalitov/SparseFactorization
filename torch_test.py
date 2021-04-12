@@ -19,11 +19,11 @@ LEARNING_RATE = 1e-3
 LR_STEP = 1
 LR_FACTOR = 0.33  # for Adam optimization
 NUM_WORKERS = multiprocessing.cpu_count()  # for parallel inference
-NUM_EPOCHS = 10
+NUM_EPOCHS = 150
 NUM_ITERATIONS = 1000
 INFERENCE_FREQUENCY = 10000
-LOGGING_FREQUENCY = 20
-VAL_LOGGING_FREQUENCY = 20
+LOGGING_FREQUENCY = 20000
+VAL_LOGGING_FREQUENCY = 20000
 MAX_STEPS_PER_EPOCH = 10**5
 
 
@@ -180,12 +180,12 @@ def train(model, epoch, train_loader, test_loader, criterion, optimizer):
                         print(val_info)
 
         # Saving model if it is better than the previous best
-        if float(losses_ev.avg) < best_val_score:
-            print('Saving the model')
-            print(f'Previous val score {best_val_score}, current val score {float(losses_ev.avg)}')
-
-            torch.save(model.state_dict(), f'best_model_val_{epoch}.pth')
-            best_val_score = losses_ev.avg
+        # if float(losses_ev.avg) < best_val_score:
+        #     print('Saving the model')
+        #     print(f'Previous val score {best_val_score}, current val score {float(losses_ev.avg)}')
+        #
+        #     torch.save(model.state_dict(), f'best_model_val_{epoch}.pth')
+        #     best_val_score = losses_ev.avg
 
         model.train()
         end = time.time()
@@ -207,6 +207,7 @@ if __name__ == '__main__':
     criterion = torch.nn.MSELoss(reduction='sum')
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     train_loader, test_loader = load_data()
+    norms = []
 
     for epoch in range(1, NUM_EPOCHS + 1):
         print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
@@ -214,8 +215,16 @@ if __name__ == '__main__':
 
         train(model, epoch, train_loader, test_loader, criterion, optimizer)
 
+        total_norm = 0
+        for p in model.parameters():
+            param_norm = p.grad.data.norm(2)
+            total_norm += param_norm.item() ** 2
+        total_norm = total_norm ** (1. / 2)
+        norms.append(total_norm)
+
         torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
 
+    print(norms)
     # import matplotlib.pyplot as plt
     # i = 10
     # plt.plot(X_gt[i, :], 'r')
