@@ -7,6 +7,7 @@ import os
 import time
 from SMF_torch_deep import *
 import matplotlib.pyplot as plt
+from permute_data import *
 
 LEARNING_RATE = 1e-5
 LR_FACTOR = 0.33  # for Adam optimization
@@ -29,6 +30,26 @@ class MyDataset(Dataset):
         for i in range(D):
             self.X.append(torch.rand(size=(N, d)))
             self.Y.append(torch.rand(size=(N, d)))
+
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, idx):
+        return self.X[index], self.Y[index]
+
+
+class MyPermuteData(Dataset):
+    def __init__(self, D, N, d):
+        """
+        :param D: Length of the dataset
+        """
+        super(MyPermuteData, self).__init__()
+        self.X = []*D
+        self.Y = []*D
+        for i in range(D):
+            X, Y = generate_permute_data_sine(N, d)
+            self.X.append(torch.tensor(X))
+            self.Y.append(torch.tensor(Y))
 
     def __len__(self):
         return len(self.X)
@@ -102,9 +123,10 @@ def show_results(losses, norms):
 
 if __name__ == '__main__':
     seed_everything(1234)
-    DS = MyDataset(100, 16, 2)
+    DS = MyPermuteData(500, 16, 16)
     #print(DS.X)
     Model = model = SMF_full(cfg)
+    print(model)
     criterion = torch.nn.MSELoss(reduction='sum')
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     losses, norms = train(DS.X, DS.Y, model, criterion, optimizer)
