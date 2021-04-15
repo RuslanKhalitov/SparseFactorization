@@ -8,14 +8,16 @@ import time
 from SMF_torch_deep import *
 import matplotlib.pyplot as plt
 from permute_data import *
+from sklearn.model_selection import train_test_split
+from torch.utils.data.sampler import SubsetRandomSampler
 
 LEARNING_RATE = 1e-5
 LR_FACTOR = 0.33  # for Adam optimization
 NUM_EPOCHS = 100
 
 cfg: Dict[str, List[int]] = {
-    'f': [16, N],
-    'g': [16, d]
+    'f': [16, 32, d],
+    'g': [16, 32, d]
 }
 
 
@@ -73,26 +75,21 @@ def seed_everything(seed=1234):
 
 def train(X, Y, model, criterion, optimizer):
     norms = []
-    losses = []
+    train_losses = []
+    test_losses = []
+    X_train, X_val, Y_train, Y_val = train_test_split(X, Y, test_size=0.33, random_state=42)
     for i in range(NUM_EPOCHS):
-        epoch_loss = 0.0
+        train_loss = 0.0
+        val_loss = 0.0
         star_time = time.time()
-        for j in range(len(X)):
-            V0 = model(X[j])
-            loss = criterion(Y[j].float(), V0)
+        for j in range(len(X_train)):
+            V0 = model(X_train[j])
+            loss = criterion(Y_train[j].float(), V0)
             loss.backward()
             optimizer.step()
-            epoch_loss += loss
-        losses.append(epoch_loss.detach().numpy())
+            train_loss += loss
+        train_losses.append(train_loss.detach().numpy())
         epoch_time = (time.time()-star_time)
-        if (i+1)%10 == 0:
-            val_info = str(
-                f'epoch {i+1}\t'
-                f'loss {epoch_loss:.4f}\t'
-                f'time {epoch_time:.4f}\t'
-            )
-            print(val_info)
-
         total_norm = 0.0
         for p in model.parameters():
             param_norm = p.grad.data.norm(2)
@@ -100,7 +97,23 @@ def train(X, Y, model, criterion, optimizer):
         total_norm = total_norm ** (1. / 2)
         norms.append(total_norm)
 
-    return losses, norms
+        with torch.no_grad():
+            for k in range(len(X_val)):
+                output = model(X_val[k])
+                loss = criterion(output, Y_val[k].float())
+                val_loss += loss
+            test_losses.append(val_loss.detach().numpy())
+
+        if (i+1)%10 == 0:
+            val_info = str(
+                f'epoch {i+1}\t'
+                f'train_loss {train_loss:.4f}\t'
+                f'val_loss {val_loss:.4f}\t'
+                f'train_time {epoch_time:.4f}\t'
+            )
+            print(val_info)
+
+    return train_losses, norms, test_losses
 
 
 def show_results(losses, norms):
@@ -111,23 +124,23 @@ def show_results(losses, norms):
     plt.xticks(fontsize=14)
     plt.yticks(fontsize=14)
     plt.plot(losses, 'b')
-    plt.title("losses change", fontsize=16)
+    plt.title("training losses", fontsize=16)
     plt.subplot(1, 2, 2)
     plt.plot(norms, 'b')
     plt.xlabel("epochs", fontsize=14)
     plt.xticks(fontsize=14)
     plt.yticks(fontsize=14)
-    plt.title("2 norms of gradients", fontsize=16)
+    plt.title("validation losses", fontsize=16)
     #plt.show()
     plt.savefig(f'Learning rate {LEARNING_RATE}.png')
 
 if __name__ == '__main__':
     seed_everything(1234)
-    DS = MyPermuteData(500, 16, 16)
+    DS = MyDataset(500, 16, 2)
     #print(DS.X)
     Model = model = SMF_full(cfg)
     print(model)
     criterion = torch.nn.MSELoss(reduction='sum')
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    losses, norms = train(DS.X, DS.Y, model, criterion, optimizer)
-    show_results(losses, norms)
+    train_losses, norms, test_losses = train(DS.X, DS.Y, model, criterion, optimizer)
+    show_results(train_losses, test_losses)
