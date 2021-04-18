@@ -19,7 +19,7 @@ def make_chord(N):
     :param N: Length of the original data
     :return: torch tensor
     """
-    chord_mask = torch.eye(N)
+    chord_mask = torch.eye(N, requires_grad=False)
     for i in range(N):
         for k in range(2):
             chord_mask[i][(i + np.power(2, k) - 1) % N] = 1

@@ -299,7 +299,7 @@ def single_layer_backward_f(dA_curr, parameters, Z_curr, A_prev):
     dZ_curr = d_relu(dA_curr, Z_curr)                       # (N, N)
     dW_curr = np.dot(dZ_curr.T, A_prev)                     # (N, N) * (N, d)
     db_curr = np.sum(dZ_curr, axis=0, keepdims=True)        # (N, 1)
-    dA_prev = np.dot(dZ_curr, theta)                      # (N, d) CHECK!
+    dA_prev = np.dot(dZ_curr, theta)                        # (N, d) CHECK!
 
     if debug:
         print('f_back dZ_curr \n', dZ_curr)
