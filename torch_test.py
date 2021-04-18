@@ -197,34 +197,34 @@ if __name__ == '__main__':
         "Please specify parameter YOUR_DIRECTORY_NAME"
 
     model = SMF_full(cfg)
-    # print(model)
+    print(model)
     # for name, param in model.named_parameters():
     #     if param.requires_grad:
     #         print(name, param.data)
     # for param in model.parameters():
     #     param.requires_grad = True
 
-    criterion = torch.nn.MSELoss(reduction='sum')
-    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    train_loader, test_loader = load_data()
-    norms = []
-
-    for epoch in range(1, NUM_EPOCHS + 1):
-        print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
-        print('-' * 30)
-
-        train(model, epoch, train_loader, test_loader, criterion, optimizer)
-
-        total_norm = 0
-        for p in model.parameters():
-            param_norm = p.grad.data.norm(2)
-            total_norm += param_norm.item() ** 2
-        total_norm = total_norm ** (1. / 2)
-        norms.append(total_norm)
-
-        torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
-
-    print(norms)
+    # criterion = torch.nn.MSELoss(reduction='sum')
+    # optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    # train_loader, test_loader = load_data()
+    # norms = []
+    #
+    # for epoch in range(1, NUM_EPOCHS + 1):
+    #     print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
+    #     print('-' * 30)
+    #
+    #     train(model, epoch, train_loader, test_loader, criterion, optimizer)
+    #
+    #     total_norm = 0
+    #     for p in model.parameters():
+    #         param_norm = p.grad.data.norm(2)
+    #         total_norm += param_norm.item() ** 2
+    #     total_norm = total_norm ** (1. / 2)
+    #     norms.append(total_norm)
+    #
+    #     torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
+    #
+    # print(norms)
     # import matplotlib.pyplot as plt
     # i = 10
     # plt.plot(X_gt[i, :], 'r')
