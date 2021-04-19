@@ -8,8 +8,6 @@ import torch.nn as nn
 import numpy as np
 from typing import Union, List, Dict, Any, cast
 
-# GLobals
-
 
 def make_chord(N):
     """
@@ -80,7 +78,7 @@ def make_layers_g(cfg: Dict[str, List]) -> nn.Sequential:
         linear = nn.Linear(in_size, v)
         layers += [linear, nn.ReLU(inplace=True)]
         in_size = v
-    layers += [nn.Linear(in_size, cast(int, cfg['N'][0]))]
+    layers += [nn.Linear(in_size, cast(int, cfg['d'][0]))]
     return nn.Sequential(*layers)
 
 

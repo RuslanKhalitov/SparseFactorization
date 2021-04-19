@@ -10,6 +10,7 @@ from typing import List, Dict
 
 # Importing local supplementary files
 from SMF_torch_deep import *
+from Analysis import Analysis
 
 # Globals
 YOUR_DIRECTORY_NAME = '/Users/ruslanhalitov/PycharmProjects'  # !!! CHANGE IT
@@ -196,15 +197,6 @@ def train(model, epoch, train_loader, test_loader, criterion, optimizer):
         model.train()
         end = time.time()
 
-class Analysis:
-    """
-    Analizes weights, biases, outputs, and gradients of the model
-    """
-    def __init__(self, active_model):
-        self.active_model = active_model
-
-    def get_weights(self):
-        pass
 
 if __name__ == '__main__':
     seed_everything(1234)
@@ -213,50 +205,30 @@ if __name__ == '__main__':
 
     model = SMF_full(cfg)
     # print(model)
-    # print(model.g.state_dict()['0.weight'].shape)
-    # print(model.g.state_dict()['0.weight'])
-    # print(model.g.state_dict()['2.weight'])
-    # print(model.g.state_dict()['3.weight'])
-    # print(model.g.state_dict()['0.bias'].shape)
-    #
-    # print(model.g.state_dict()['2.weight'].shape)
-    # print(model.g.state_dict()['2.bias'].shape)
-    for name, param in model.g.named_parameters():
-        if param.requires_grad:
-            # print(name, param.data)
-            print(name)
 
-    for name, param in model.fs.named_parameters():
-        if param.requires_grad:
-            # print(name, param.data)
-            print(name)
+    for param in model.parameters():
+        param.requires_grad = True
 
-    # for param in model.parameters():
-    #     param.requires_grad = True
-    #
-    # criterion = torch.nn.MSELoss(reduction='sum')
-    # optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    # train_loader, test_loader = load_data()
-    # norms = []
-    #
+    criterion = torch.nn.MSELoss(reduction='sum')
+    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    train_loader, test_loader = load_data()
+
     # for epoch in range(1, NUM_EPOCHS + 1):
-    #     print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
-    #     print('-' * 30)
-    #
-    #     train(model, epoch, train_loader, test_loader, criterion, optimizer)
-    #
-    #     total_norm = 0
-    #     for p in model.parameters():
-    #         param_norm = p.grad.data.norm(2)
-    #         total_norm += param_norm.item() ** 2
-    #     total_norm = total_norm ** (1. / 2)
-    #     norms.append(total_norm)
-    #
-    #     torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
-    #
-    # print(norms)
-    # import matplotlib.pyplot as plt
-    # i = 10
-    # plt.plot(X_gt[i, :], 'r')
-    # plt.plot(V0[i, :], 'b')
-    # plt.show()
+    for epoch in range(1):
+        print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
+        print('-' * 30)
+
+        train(model, epoch, train_loader, test_loader, criterion, optimizer)
+        Analysis(model, cfg).stats_on_params()
+        # for name, param in model.named_parameters():
+        #     print(name)
+        #     print(param.grad)
+        # total_norm = 0
+        # for p in model.parameters():
+        #     param_norm = p.grad.data.norm(2)
+        #     total_norm += param_norm.item() ** 2
+        # total_norm = total_norm ** (1. / 2)
+        # norms.append(total_norm)
+        #
+        # torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
+
