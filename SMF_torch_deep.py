@@ -9,9 +9,6 @@ import numpy as np
 from typing import Union, List, Dict, Any, cast
 
 # GLobals
-N = 16
-d = 5
-n_layers = 4
 
 
 def make_chord(N):
@@ -31,17 +28,20 @@ class SMFNet(nn.Module):
     def __init__(
             self,
             g: nn.Module,
-            fs: nn.Module
+            fs: nn.Module,
+            N: int
     ) -> None:
         """
         Main architecture
         :param g: NN for F
         :param fs: NNs for Ws
+        :param N: sequence length
         """
         super(SMFNet, self).__init__()
-
+        self.N = N
         self.g = g
         self.fs = fs
+        self.chord_mask = make_chord(self.N)
 
     def forward(self, X):
         """
@@ -49,47 +49,48 @@ class SMFNet(nn.Module):
         :return: V(M-1) M is the layer number.
         """
         N = X.shape[1]
-        chord_mask = make_chord(N)
         V0 = self.g(X.float())
         for m in range(len(self.fs)):
             # W = self.fs[m](X.float())
-            W = self.fs[m](X.float()) * chord_mask
+            W = self.fs[m](X.float()) * self.chord_mask
             V0 = torch.matmul(W, V0)
 
         return V0
 
 
-def make_layers_f(cfg: List[Union[str, int]]) -> nn.Sequential:
+def make_layers_f(cfg: Dict[str, List]) -> nn.Sequential:
     layers: List[nn.Module] = []
-    in_size = d
-    for i in range(len(cfg) - 1):
-        v = cast(int, cfg[i])
+    in_size = cast(int, cfg['d'][0])
+    cfg_g = cfg['g']
+    for i in range(len(cfg_g)):
+        v = cast(int, cfg_g[i])
         linear = nn.Linear(in_size, v)
         layers += [linear, nn.ReLU(inplace=True)]
         in_size = v
-    layers += [nn.Linear(in_size, cast(int, cfg[-1]))]
+    layers += [nn.Linear(in_size, cast(int, cfg['N'][0]))]
     return nn.Sequential(*layers)
 
 
-def make_layers_g(cfg: List[Union[str, int]]) -> nn.Sequential:
+def make_layers_g(cfg: Dict[str, List]) -> nn.Sequential:
     layers: List[nn.Module] = []
-    in_size = d
-    for i in range(len(cfg) - 1):
-        v = cast(int, cfg[i])
+    in_size = cast(int, cfg['d'][0])
+    cfg_f = cfg['f']
+    for i in range(len(cfg_f)):
+        v = cast(int, cfg_f[i])
         linear = nn.Linear(in_size, v)
         layers += [linear, nn.ReLU(inplace=True)]
         in_size = v
-    layers += [nn.Linear(in_size, cast(int, cfg[-1]))]
+    layers += [nn.Linear(in_size, cast(int, cfg['N'][0]))]
     return nn.Sequential(*layers)
 
 
-def SMF_full(cfg: str) -> SMFNet:
+def SMF_full(cfg: Dict[str, List]) -> SMFNet:
     model = SMFNet(
-        g=make_layers_g(cfg['g']),
+        g=make_layers_g(cfg),
         fs=nn.ModuleList(
-            [make_layers_f(cfg['f']) for _ in range(n_layers)]
-        )
-    )
+            [make_layers_f(cfg) for _ in range(cfg['n_layers'][0])]
+        ),
+        N=cfg['N'][0])
     return model
 
 

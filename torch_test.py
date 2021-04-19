@@ -28,8 +28,11 @@ MAX_STEPS_PER_EPOCH = 10**5
 
 
 cfg: Dict[str, List[int]] = {
-    'f': [16, 32, 16, N],
-    'g': [16, 32, 16, d]
+    'f': [13, 10, 11],
+    'g': [13, 10, 11],
+    'n_layers': [3],
+    'N': [16],
+    'd': [5]
 }
 
 
@@ -193,6 +196,15 @@ def train(model, epoch, train_loader, test_loader, criterion, optimizer):
         model.train()
         end = time.time()
 
+class Analysis:
+    """
+    Analizes weights, biases, outputs, and gradients of the model
+    """
+    def __init__(self, active_model):
+        self.active_model = active_model
+
+    def get_weights(self):
+        pass
 
 if __name__ == '__main__':
     seed_everything(1234)
@@ -200,35 +212,49 @@ if __name__ == '__main__':
         "Please specify parameter YOUR_DIRECTORY_NAME"
 
     model = SMF_full(cfg)
-    print(model)
-    for name, param in model.named_parameters():
+    # print(model)
+    # print(model.g.state_dict()['0.weight'].shape)
+    # print(model.g.state_dict()['0.weight'])
+    # print(model.g.state_dict()['2.weight'])
+    # print(model.g.state_dict()['3.weight'])
+    # print(model.g.state_dict()['0.bias'].shape)
+    #
+    # print(model.g.state_dict()['2.weight'].shape)
+    # print(model.g.state_dict()['2.bias'].shape)
+    for name, param in model.g.named_parameters():
         if param.requires_grad:
-            print(name, param.data)
-    for param in model.parameters():
-        param.requires_grad = True
+            # print(name, param.data)
+            print(name)
 
-    criterion = torch.nn.MSELoss(reduction='sum')
-    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    train_loader, test_loader = load_data()
-    norms = []
+    for name, param in model.fs.named_parameters():
+        if param.requires_grad:
+            # print(name, param.data)
+            print(name)
 
-    for epoch in range(1, NUM_EPOCHS + 1):
-        print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
-        print('-' * 30)
-
-
-        train(model, epoch, train_loader, test_loader, criterion, optimizer)
-
-        total_norm = 0
-        for p in model.parameters():
-            param_norm = p.grad.data.norm(2)
-            total_norm += param_norm.item() ** 2
-        total_norm = total_norm ** (1. / 2)
-        norms.append(total_norm)
-
-        torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
-
-    print(norms)
+    # for param in model.parameters():
+    #     param.requires_grad = True
+    #
+    # criterion = torch.nn.MSELoss(reduction='sum')
+    # optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    # train_loader, test_loader = load_data()
+    # norms = []
+    #
+    # for epoch in range(1, NUM_EPOCHS + 1):
+    #     print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
+    #     print('-' * 30)
+    #
+    #     train(model, epoch, train_loader, test_loader, criterion, optimizer)
+    #
+    #     total_norm = 0
+    #     for p in model.parameters():
+    #         param_norm = p.grad.data.norm(2)
+    #         total_norm += param_norm.item() ** 2
+    #     total_norm = total_norm ** (1. / 2)
+    #     norms.append(total_norm)
+    #
+    #     torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
+    #
+    # print(norms)
     # import matplotlib.pyplot as plt
     # i = 10
     # plt.plot(X_gt[i, :], 'r')
