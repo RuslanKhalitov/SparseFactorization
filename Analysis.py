@@ -1,6 +1,6 @@
 import torch
 from typing import List, Dict
-
+import matplotlib as plt
 
 class Analysis:
     """
@@ -86,13 +86,12 @@ class Analysis:
             else:
                 stats_container[var_name] = self.stats_calculation(values)
 
-        # print(stats_container)
         return stats_container
 
 
 class PlotGraphs:
     """
-    Plots graphs
+    Plots graphs after training
     """
     def __init__(self, train_stats, test_stats, param_stats):
         self.train_stats = train_stats
@@ -100,5 +99,42 @@ class PlotGraphs:
         self.param_stats = param_stats
 
     def plot(self):
-        pass
-        # TODO: FINISH THE MODULE
+        fig, axs = plt.subplots(
+            2,
+            2,
+            subplot_kw=dict(projection="polar"),
+            gridspec_kw={'width_ratios': [3, 3, 2, 2, 2, ]},
+            sharex='col'
+        )
+
+        # Loss
+        axs[0, 0].plot(self.train_stats)
+        axs[0, 0].set_title('Train')
+
+        axs[0, 1].plot(self.test_stats)
+        axs[0, 1].set_title('Test')
+
+        # Gradients
+        axs[1, 0].plot(self.param_stats['g_weights_grads'])
+        axs[1, 0].set_title('g_weights_grads')
+
+        axs[1, 1].plot(self.param_stats['g_biases_grads'])
+        axs[1, 1].set_title('g_biases_grads')
+
+        axs[1, 2].plot(self.param_stats['f_weights_grads'])
+        axs[1, 2].set_title('f_weights_grads')
+
+        axs[1, 3].plot(self.param_stats['f_biases_grads'])
+        axs[1, 3].set_title('f_biases_grads')
+
+        # Values
+        axs[1, 0].plot(self.param_stats['g_weights']['std'])
+        axs[1, 0].set_title('g_weights STD')
+
+        axs[1, 1].plot(self.param_stats['g_weights']['mean'])
+        axs[1, 1].set_title('g_weights Mean')
+
+        axs[1, 2].plot(self.param_stats['g_weights']['max'])
+        axs[1, 2].set_title('g_weights Max')
+
+        # TODO: Finish filling the graph

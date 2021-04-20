@@ -1,4 +1,4 @@
-nn_cfg: Dict[str, List[int]] = {
+nn_cfg = {
     'dataset': ["exp", "ln", "permute", "iris"],
     'masking': ["chord", "no_chord"],
     'optimizer': ["Adam", "SGD", "RMRProp"],
