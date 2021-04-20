@@ -10,7 +10,7 @@ from typing import List, Dict
 
 # Importing local supplementary files
 from SMF_torch_deep import *
-from Analysis import Analysis
+from Analysis import Analysis, PlotGraphs
 
 # Globals
 YOUR_DIRECTORY_NAME = '/Users/ruslanhalitov/PycharmProjects'  # !!! CHANGE IT
@@ -213,6 +213,32 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     train_loader, test_loader = load_data()
 
+    final_dict = {
+        'train_loss': [],
+        'test_loss': [],
+
+        'grad_g_value': [],
+        'grad_g_bias': [],
+        'grad_f_value': [],
+        'grad_f_bias': [],
+
+        'g_weight_std': [],
+        'g_weight_mean': [],
+        'g_weight_max': [],
+
+        'g_bias_std': [],
+        'g_bias_mean': [],
+        'g_bias_max': [],
+
+        'f_weight_std': [],
+        'f_weight_mean': [],
+        'f_weight_max': [],
+
+        'f_bias_std': [],
+        'f_bias_mean': [],
+        'f_bias_max': [],
+    }
+
     # for epoch in range(1, NUM_EPOCHS + 1):
     for epoch in range(1):
         print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
@@ -231,4 +257,6 @@ if __name__ == '__main__':
         # norms.append(total_norm)
         #
         # torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
+
+    PlotGraphs(final_dict)
 

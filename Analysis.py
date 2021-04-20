@@ -2,6 +2,7 @@ import torch
 from typing import List, Dict
 import matplotlib as plt
 
+
 class Analysis:
     """
     Makes stats for weights, biases, outputs, and gradients of the model
@@ -20,7 +21,8 @@ class Analysis:
         :return: weights and biases
         """
         # g weights and gradients
-        g_params = self.active_model.g.named_parameters()
+        with torch.no_grad():
+            g_params = self.active_model.g.named_parameters()
         g_weights = []
         g_biases = []
         g_weights_grads = []
@@ -85,7 +87,7 @@ class Analysis:
                 stats_container[var_name] = values.norm().item()
             else:
                 stats_container[var_name] = self.stats_calculation(values)
-
+        print(stats_container)
         return stats_container
 
 
@@ -138,3 +140,4 @@ class PlotGraphs:
         axs[1, 2].set_title('g_weights Max')
 
         # TODO: Finish filling the graph
+        # SAVE!!!!!!
