@@ -1,6 +1,6 @@
 import torch
 from typing import List, Dict
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 
 class Analysis:
@@ -95,18 +95,34 @@ class PlotGraphs:
     """
     Plots graphs after training
     """
-    def __init__(self, train_stats, test_stats, param_stats):
-        self.train_stats = train_stats
-        self.test_stats = test_stats
-        self.param_stats = param_stats
+    def __init__(self, final_dict):
+        self.train_stats = final_dict["train_loss"]
+        self.test_stats = final_dict["test_loss"]
+        self.g_weights_grad = final_dict["grad_g_value"]
+        self.g_bias_grad = final_dict["grad_g_bias"]
+        self.f_weights_grad = final_dict["grad_f_value"]
+        self.f_bias_grad = final_dict["grad_f_bias"]
+
+        self.g_weights_std = final_dict["g_weight_std"]
+        self.g_weights_mean = final_dict["g_weight_mean"]
+        self.g_weights_max = final_dict["g_weight_max"]
+        self.g_bias_std = final_dict["g_bias_std"]
+        self.g_bias_mean = final_dict["g_bias_mean"]
+        self.g_bias_max = final_dict["g_bias_max"]
+        self.fs_weights_std = final_dict["fs_weight_std"]
+        self.fs_weights_mean = final_dict["fs_weight_mean"]
+        self.fs_weights_max = final_dict["fs_weight_max"]
+        self.fs_bias_std = final_dict["fs_bias_std"]
+        self.fs_bias_mean = final_dict["fs_bias_mean"]
+        self.fs_bias_max = final_dict["fs_bias_max"]
 
     def plot(self):
         fig, axs = plt.subplots(
+            3,
             2,
-            2,
-            subplot_kw=dict(projection="polar"),
-            gridspec_kw={'width_ratios': [3, 3, 2, 2, 2, ]},
-            sharex='col'
+            sharex=True,
+            sharey=False,
+            figsize=(10, 10)
         )
 
         # Loss
@@ -116,28 +132,58 @@ class PlotGraphs:
         axs[0, 1].plot(self.test_stats)
         axs[0, 1].set_title('Test')
 
+
         # Gradients
-        axs[1, 0].plot(self.param_stats['g_weights_grads'])
+        axs[1, 0].plot(self.g_weights_grad)
         axs[1, 0].set_title('g_weights_grads')
 
-        axs[1, 1].plot(self.param_stats['g_biases_grads'])
+        axs[1, 1].plot(self.g_bias_grad)
         axs[1, 1].set_title('g_biases_grads')
 
-        axs[1, 2].plot(self.param_stats['f_weights_grads'])
-        axs[1, 2].set_title('f_weights_grads')
+        axs[2, 0].plot(self.f_weights_grad)
+        axs[2, 0].set_title('fs_weights_grads')
 
-        axs[1, 3].plot(self.param_stats['f_biases_grads'])
-        axs[1, 3].set_title('f_biases_grads')
+        axs[2, 1].plot(self.f_bias_grad)
+        axs[2, 1].set_title('fs_biases_grads')
 
         # Values
-        axs[1, 0].plot(self.param_stats['g_weights']['std'])
-        axs[1, 0].set_title('g_weights STD')
+        #axs[2, 0].plot(self.g_weights_std)
+        #axs[2, 0].set_title('g_weights STD')
 
-        axs[1, 1].plot(self.param_stats['g_weights']['mean'])
-        axs[1, 1].set_title('g_weights Mean')
+        #axs[2, 1].plot(self.g_weights_mean)
+        #axs[2, 1].set_title('g_weights Mean')
 
-        axs[1, 2].plot(self.param_stats['g_weights']['max'])
-        axs[1, 2].set_title('g_weights Max')
+        #axs[2, 2].plot(self.g_weights_max)
+        #axs[2, 2].set_title('g_weights Max')
 
+        #axs[3, 0].plot(self.g_bias_std)
+        #axs[3, 0].set_title('g_bias STD')
+
+        #axs[3, 1].plot(self.g_bias_mean)
+        #axs[3, 1].set_title('g_weights Mean')
+
+        #axs[3, 2].plot(self.g_bias_max)
+        #axs[3, 2].set_title('g_bias Max')
+
+        #axs[4, 0].plot(self.fs_weights_std)
+        #axs[4, 0].set_title('fs_weights STD')
+
+        #axs[4, 1].plot(self.fs_weights_mean)
+        #axs[4, 1].set_title('fs_weights Mean')
+
+        #axs[4, 2].plot(self.fs_weights_max)
+        #axs[4, 2].set_title('fs_weights Max')
+
+        #axs[5, 0].plot(self.fs_bias_std)
+        #axs[5, 0].set_title('fs_bias STD')
+
+        #axs[5, 1].plot(self.fs_bias_mean)
+        #axs[5, 1].set_title('fs_weights Mean')
+
+        #axs[5, 2].plot(self.fs_bias_max)
+        #axs[5, 2].set_title('fs_bias Max')
+
+        plt.show()
+        #plt.savefig("test.png")
         # TODO: Finish filling the graph
         # SAVE!!!!!!
