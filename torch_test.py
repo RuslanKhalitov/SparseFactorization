@@ -256,7 +256,12 @@ def one_experient(cfg):
 
         final_dict = Analysis(model, cfg, final_dict).stats_on_params()
 
-        torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
+        if epoch == cfg['n_epochs'] - 1:
+            try:
+                os.makedirs("SparseFactorization/output/model")
+            except FileExistsError:
+                pass
+            torch.save(model.state_dict(), "SparseFactorization/output/model/final_model.pth")
 
     PlotGraphs(final_dict, cfg).plot()
 
