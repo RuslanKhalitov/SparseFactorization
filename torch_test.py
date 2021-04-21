@@ -15,7 +15,7 @@ from Analysis import Analysis, PlotGraphs
 # Globals
 YOUR_DIRECTORY_NAME = '/Users/ruslanhalitov/PycharmProjects'  # !!! CHANGE IT
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-BATCH_SIZE = 150
+BATCH_SIZE = 50
 LEARNING_RATE = 1e-3
 LR_STEP = 1
 LR_FACTOR = 0.33  # for Adam optimization
@@ -26,16 +26,6 @@ INFERENCE_FREQUENCY = 10000
 LOGGING_FREQUENCY = 20000
 VAL_LOGGING_FREQUENCY = 20000
 MAX_STEPS_PER_EPOCH = 10**5
-
-
-cfg: Dict[str, List[int]] = {
-    'f': [13, 10, 11],
-    'g': [13, 10, 11],
-    'n_layers': [3],
-    'N': [16],
-    'd': [5],
-    'disable_masking': [False]
-}
 
 
 def seed_everything(seed=1234):
@@ -81,25 +71,25 @@ class DatasetCreator(Dataset):
         return len(self.list_of_X)
 
 
-def load_data():
+def load_data(batch_size, folder_name):
     """
     Prepares the training and testing dataloaders
     :return: train dataloader, test_dataloader
     """
     train_dataset = DatasetCreator(mode='train',
-                                   X_folder='SparseFactorization/train/generate_permute_data_gaussian/X',
-                                   Y_folder='SparseFactorization/train/generate_permute_data_gaussian/Y',
+                                   X_folder=f'SparseFactorization/train/{folder_name}/X',
+                                   Y_folder=f'SparseFactorization/train/{folder_name}/Y',
                                    )
 
     test_dataset  = DatasetCreator(mode='test',
-                                   X_folder='SparseFactorization/train/generate_permute_data_gaussian/X',
-                                   Y_folder='SparseFactorization/train/generate_permute_data_gaussian/Y',
+                                   X_folder=f'SparseFactorization/train/{folder_name}/X',
+                                   Y_folder=f'SparseFactorization/train/{folder_name}/Y',
                                    )
 
-    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE,
+    train_loader = DataLoader(train_dataset, batch_size=batch_size,
                               shuffle=True, drop_last=True)
 
-    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE,
+    test_loader = DataLoader(test_dataset, batch_size=batch_size,
                              shuffle=False, drop_last=False)
 
     return train_loader, test_loader
@@ -211,7 +201,8 @@ def train(model, epoch, train_loader, test_loader, criterion, optimizer):
         return round(losses.avg, 1), round(losses_ev.avg, 1)
 
 
-if __name__ == '__main__':
+def one_experient(cfg):
+
     seed_everything(1234)
     assert str(os.getcwd()) == YOUR_DIRECTORY_NAME,\
         "Please specify parameter YOUR_DIRECTORY_NAME"
@@ -219,12 +210,17 @@ if __name__ == '__main__':
     model = SMF_full(cfg)
     # print(model)
 
-    for param in model.parameters():
-        param.requires_grad = True
-
     criterion = torch.nn.MSELoss(reduction='sum')
-    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    train_loader, test_loader = load_data()
+
+    # Mapping optimizer
+    optim_mapped = {
+        'Adam': torch.optim.Adam,
+        'RMSP': torch.optim.RMSprop,
+        'SGD': torch.optim.SGD
+    }[cfg['optimizer'][0]]
+
+    optimizer = optim_mapped(model.parameters(), lr=cfg['LR'][0])
+    train_loader, test_loader = load_data(cfg['batch_size'][0], cfg['folder_name'][0])
 
     final_dict = {
         'train_loss': [],
@@ -252,9 +248,7 @@ if __name__ == '__main__':
         'fs_bias_max': [],
     }
 
-    for epoch in range(1, NUM_EPOCHS + 1):
-        # print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
-        # print('-' * 30)
+    for epoch in range(1, cfg['n_epochs'] + 1):
 
         loss, loss_ev = train(model, epoch, train_loader, test_loader, criterion, optimizer)
         final_dict['train_loss'].append(loss)
@@ -266,3 +260,25 @@ if __name__ == '__main__':
 
     PlotGraphs(final_dict, cfg).plot()
 
+
+if __name__ == '__main__':
+    for LR in [0.01, 0.001, 0.001, 0.0001]:
+        for disable_mask in [False, True]:
+            for optimizer in ['Adam', 'RMSP', 'SGD']:
+                for batch_size in [100]:
+
+                    cfg: Dict[str, List[int]] = {
+                        'folder_name': ['generate_permute_data_gaussian'],
+                        'f': [13, 10],
+                        'g': [13, 10],
+                        'n_layers': [4],
+                        'N': [16],
+                        'd': [5],
+                        'disable_masking': [disable_mask],
+                        'LR': [LR],
+                        'optimizer': [optimizer],
+                        'batch_size': [batch_size],
+                        'n_epochs': 10
+                    }
+
+                    one_experient(cfg)

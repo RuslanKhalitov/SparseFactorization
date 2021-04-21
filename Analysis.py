@@ -122,6 +122,19 @@ class PlotGraphs:
         self.fs_bias_max = final_dict["fs_bias_max"]
 
     def plot(self):
+
+        n_layers = self.cfg['n_layers'][0]
+        N = self.cfg['N'][0]
+        d = self.cfg['d'][0]
+        masking = int(not self.cfg['disable_masking'][0])
+        optimizer = self.cfg['optimizer'][0]
+        batch_size = self.cfg['batch_size'][0]
+        LR = self.cfg['LR'][0]
+
+        # optimizer_mapping
+
+        string_ = f'{n_layers}fs_{N}N_{d}d_lr{LR}_mask{masking}_bs{batch_size}_opt{optimizer}'
+
         fig, axs = plt.subplots(
             3,
             2,
@@ -129,7 +142,7 @@ class PlotGraphs:
             sharey=False,
             figsize=(10, 10)
         )
-
+        fig.suptitle(string_)
         # Loss
         axs[0, 0].plot(self.train_stats)
         axs[0, 0].set_title('Train')
@@ -197,9 +210,5 @@ class PlotGraphs:
             os.makedirs("SparseFactorization/result_plots")
         except FileExistsError:
             pass
-        n_layers = self.cfg['n_layers'][0]
-        N = self.cfg['N'][0]
-        d = self.cfg['d'][0]
-        masking = ~self.cfg['disable_masking'][0]
-
-        plt.savefig(f"SparseFactorization/result_plots/{n_layers}fs_{N}N_{d}d_m{masking}.png")
+        print(string_)
+        plt.savefig(f"SparseFactorization/result_plots/{string_}.png")

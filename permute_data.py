@@ -144,14 +144,17 @@ def generate_folders_data(N, d, N_all, N_samples_train, Generator=generate_exp_d
 
 if __name__ == '__main__':
     seed_everything(1234)
-    N_samples_test = 5000
-    N_samples_train = 10000
+    N_samples_test = 500
+    N_samples_train = 1000
     N_all = N_samples_test + N_samples_train
     N = 16
     d = 5
 
     generate_folders_data(N, d, N_all, N_samples_train, Generator=generate_permute_data_gaussian,
                           sigma=None, noise=None, dirName='generate_permute_data_gaussian')
+
+    generate_folders_data(N, d, N_all, N_samples_train, Generator=generate_exp_data,
+                          sigma=None, noise=None, dirName='generate_exp_data')
 
 
 
