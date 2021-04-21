@@ -27,7 +27,8 @@ class SMFNet(nn.Module):
             self,
             g: nn.Module,
             fs: nn.Module,
-            N: int
+            N: int,
+            disable_masking: bool
     ) -> None:
         """
         Main architecture
@@ -39,18 +40,21 @@ class SMFNet(nn.Module):
         self.N = N
         self.g = g
         self.fs = fs
-        self.chord_mask = make_chord(self.N)
+        self.disable_masking = disable_masking
+        if not self.disable_masking:
+            self.chord_mask = make_chord(self.N)
 
     def forward(self, X):
         """
         :param X: Nxd data
         :return: V(M-1) M is the layer number.
         """
-        N = X.shape[1]
         V0 = self.g(X.float())
         for m in range(len(self.fs)):
-            # W = self.fs[m](X.float())
-            W = self.fs[m](X.float()) * self.chord_mask
+            if self.disable_masking:
+                W = self.fs[m](X.float())
+            else:
+                W = self.fs[m](X.float()) * self.chord_mask
             V0 = torch.matmul(W, V0)
 
         return V0
@@ -88,7 +92,9 @@ def SMF_full(cfg: Dict[str, List]) -> SMFNet:
         fs=nn.ModuleList(
             [make_layers_f(cfg) for _ in range(cfg['n_layers'][0])]
         ),
-        N=cfg['N'][0])
+        N=cfg['N'][0],
+        disable_masking=cfg['disable_masking'][0]
+    )
     return model
 
 

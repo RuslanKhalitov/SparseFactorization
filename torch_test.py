@@ -15,12 +15,12 @@ from Analysis import Analysis, PlotGraphs
 # Globals
 YOUR_DIRECTORY_NAME = '/Users/ruslanhalitov/PycharmProjects'  # !!! CHANGE IT
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-BATCH_SIZE = 10
+BATCH_SIZE = 150
 LEARNING_RATE = 1e-3
 LR_STEP = 1
 LR_FACTOR = 0.33  # for Adam optimization
 NUM_WORKERS = multiprocessing.cpu_count()  # for parallel inference
-NUM_EPOCHS = 150
+NUM_EPOCHS = 100
 NUM_ITERATIONS = 1000
 INFERENCE_FREQUENCY = 10000
 LOGGING_FREQUENCY = 20000
@@ -33,7 +33,8 @@ cfg: Dict[str, List[int]] = {
     'g': [13, 10, 11],
     'n_layers': [3],
     'N': [16],
-    'd': [5]
+    'd': [5],
+    'disable_masking': [False]
 }
 
 
@@ -165,26 +166,26 @@ def train(model, epoch, train_loader, test_loader, criterion, optimizer):
             print(train_info)
 
         # Validation
-        if i % INFERENCE_FREQUENCY == INFERENCE_FREQUENCY - 1:
-            print('Model evaluation')
-            print('-' * 30)
-
-            losses_ev = AverageMeter()
-            num_steps_eval = len(test_loader)
-            model.eval()
-
-            with torch.no_grad():
-                for j, (X, X_gt) in enumerate(test_loader):
-                    output = model(X)
-                    loss = criterion(output, X_gt.float())
-                    losses_ev.update(loss.data.item(), X.size(0))
-
-                    if j % VAL_LOGGING_FREQUENCY == 0:
-                        val_info = str(
-                            f'epoch {epoch} [{j}/{num_steps_eval}]\t'
-                            f'loss {losses_ev.val:.4f} ({losses_ev.avg:.4f})\t'
-                        )
-                        print(val_info)
+        # if i % INFERENCE_FREQUENCY == INFERENCE_FREQUENCY - 1:
+        #     print('Model evaluation')
+        #     print('-' * 30)
+        #
+        #     losses_ev = AverageMeter()
+        #     num_steps_eval = len(test_loader)
+        #     model.eval()
+        #
+        #     with torch.no_grad():
+        #         for j, (X, X_gt) in enumerate(test_loader):
+        #             output = model(X)
+        #             loss_ev = criterion(output, X_gt.float())
+        #             losses_ev.update(loss_ev.data.item(), X.size(0))
+        #
+        #             if j % VAL_LOGGING_FREQUENCY == 0:
+        #                 val_info = str(
+        #                     f'epoch {epoch} [{j}/{num_steps_eval}]\t'
+        #                     f'loss {losses_ev.val:.4f} ({losses_ev.avg:.4f})\t'
+        #                 )
+        #                 print(val_info)
 
         # Saving model if it is better than the previous best
         # if float(losses_ev.avg) < best_val_score:
@@ -194,8 +195,20 @@ def train(model, epoch, train_loader, test_loader, criterion, optimizer):
         #     torch.save(model.state_dict(), f'best_model_val_{epoch}.pth')
         #     best_val_score = losses_ev.avg
 
-        model.train()
+
+        # model.train()
         end = time.time()
+
+    # Loss for validation
+    model.eval()
+
+    with torch.no_grad():
+        for j, (X, X_gt) in enumerate(test_loader):
+            output = model(X)
+            loss_ev = criterion(output, X_gt.float())
+            losses_ev.update(loss_ev.data.item(), X.size(0))
+
+        return round(losses.avg, 1), round(losses_ev.avg, 1)
 
 
 if __name__ == '__main__':
@@ -230,33 +243,26 @@ if __name__ == '__main__':
         'g_bias_mean': [],
         'g_bias_max': [],
 
-        'f_weight_std': [],
-        'f_weight_mean': [],
-        'f_weight_max': [],
+        'fs_weight_std': [],
+        'fs_weight_mean': [],
+        'fs_weight_max': [],
 
-        'f_bias_std': [],
-        'f_bias_mean': [],
-        'f_bias_max': [],
+        'fs_bias_std': [],
+        'fs_bias_mean': [],
+        'fs_bias_max': [],
     }
 
-    # for epoch in range(1, NUM_EPOCHS + 1):
-    for epoch in range(1):
-        print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
-        print('-' * 30)
+    for epoch in range(1, NUM_EPOCHS + 1):
+        # print('Epoch {}/{}'.format(epoch, NUM_EPOCHS))
+        # print('-' * 30)
 
-        train(model, epoch, train_loader, test_loader, criterion, optimizer)
-        Analysis(model, cfg).stats_on_params()
-        # for name, param in model.named_parameters():
-        #     print(name)
-        #     print(param.grad)
-        # total_norm = 0
-        # for p in model.parameters():
-        #     param_norm = p.grad.data.norm(2)
-        #     total_norm += param_norm.item() ** 2
-        # total_norm = total_norm ** (1. / 2)
-        # norms.append(total_norm)
-        #
+        loss, loss_ev = train(model, epoch, train_loader, test_loader, criterion, optimizer)
+        final_dict['train_loss'].append(loss)
+        final_dict['test_loss'].append(loss_ev)
+
+        final_dict = Analysis(model, cfg, final_dict).stats_on_params()
+
         # torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
 
-    PlotGraphs(final_dict)
+    PlotGraphs(final_dict, cfg).plot()
 
