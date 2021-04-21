@@ -256,19 +256,19 @@ def one_experient(cfg):
 
         final_dict = Analysis(model, cfg, final_dict).stats_on_params()
 
-        # torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
+        torch.save(model.state_dict(), "final_model_{}.pth".format(epoch))
 
     PlotGraphs(final_dict, cfg).plot()
 
 
 if __name__ == '__main__':
-    for LR in [0.01, 0.001, 0.001, 0.0001]:
+    for LR in [0.01, 0.001, 0.0001]:
         for disable_mask in [False, True]:
             for optimizer in ['Adam', 'RMSP', 'SGD']:
                 for batch_size in [100]:
 
                     cfg: Dict[str, List[int]] = {
-                        'folder_name': ['generate_permute_data_gaussian'],
+                        'folder_name': ['generate_exp_data'],
                         'f': [13, 10],
                         'g': [13, 10],
                         'n_layers': [4],
@@ -278,7 +278,7 @@ if __name__ == '__main__':
                         'LR': [LR],
                         'optimizer': [optimizer],
                         'batch_size': [batch_size],
-                        'n_epochs': 10
+                        'n_epochs': 200
                     }
 
                     one_experient(cfg)
