@@ -9,11 +9,11 @@ cfg: Dict[str, List[int]] = {
     'n_layers': [4],
     'N': [16],
     'd': [5],
-    'disable_masking': [False],
-    'LR': [0.001],
+    'disable_masking': [True],
+    'LR': [0.01],
     'optimizer': ['Adam'],
     'batch_size': [100],
-    'n_epochs': 200
+    'n_epochs': 500
 }
 
 
@@ -21,13 +21,14 @@ class ChangedSMF(SMFNet):
 
     def forward(self, X):
         V0 = self.g(X.float())
+        # V0 = X.float()
         print('V0', np.round(V0.detach().numpy(), 1))
         for m in range(len(self.fs)):
             if self.disable_masking:
                 W = self.fs[m](X.float())
             else:
                 W = self.fs[m](X.float()) * self.chord_mask
-            print('Chord', np.round(self.chord_mask.detach().numpy(), 1))
+            # print('Chord', np.round(self.chord_mask.detach().numpy(), 1))
             print(f'W{m}', np.round(W.detach().numpy(), 1))
             V0 = torch.matmul(W, V0)
         return V0
@@ -45,7 +46,7 @@ def Changed_SMF_full(cfg: Dict[str, List]) -> ChangedSMF:
     return model
 
 #Train
-# one_experient(cfg)
+one_experient(cfg)
 
 model = Changed_SMF_full(cfg)
 model.load_state_dict(torch.load('SparseFactorization/output/model/final_model.pth'))

@@ -7,19 +7,19 @@ import torch
 import torch.nn as nn
 import numpy as np
 from typing import Union, List, Dict, Any, cast
+from ChordMatrix import chord_mask
 
-
-def make_chord(N):
-    """
-    :param N: Length of the original data
-    :return: torch tensor
-    """
-    chord_mask = torch.eye(N, requires_grad=False)
-    for i in range(N):
-        for k in range(2):
-            chord_mask[i][(i + np.power(2, k) - 1) % N] = 1
-
-    return chord_mask
+# def make_chord(N):
+#     """
+#     :param N: Length of the original data
+#     :return: torch tensor
+#     """
+#     chord_mask = torch.eye(N, requires_grad=False)
+#     for i in range(N):
+#         for k in range(2):
+#             chord_mask[i][(i + np.power(2, k) - 1) % N] = 1
+#
+#     return chord_mask
 
 
 class SMFNet(nn.Module):
@@ -42,7 +42,7 @@ class SMFNet(nn.Module):
         self.fs = fs
         self.disable_masking = disable_masking
         if not self.disable_masking:
-            self.chord_mask = make_chord(self.N)
+            self.chord_mask = chord_mask(self.N)
 
     def forward(self, X):
         """
@@ -50,6 +50,7 @@ class SMFNet(nn.Module):
         :return: V(M-1) M is the layer number.
         """
         V0 = self.g(X.float())
+        # V0 = X.float()
         for m in range(len(self.fs)):
             if self.disable_masking:
                 W = self.fs[m](X.float())

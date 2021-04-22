@@ -210,7 +210,7 @@ def one_experient(cfg):
     model = SMF_full(cfg)
     # print(model)
 
-    criterion = torch.nn.MSELoss(reduction='sum')
+    criterion = torch.nn.MSELoss(reduction='mean')
 
     # Mapping optimizer
     optim_mapped = {
@@ -262,18 +262,18 @@ def one_experient(cfg):
             except FileExistsError:
                 pass
             torch.save(model.state_dict(), "SparseFactorization/output/model/final_model.pth")
-
+        # print(final_dict)
     PlotGraphs(final_dict, cfg).plot()
 
 
 if __name__ == '__main__':
     for LR in [0.01, 0.001, 0.0001]:
         for disable_mask in [False, True]:
-            for optimizer in ['Adam', 'RMSP', 'SGD']:
+            for optimizer in ['Adam', 'RMSP']:
                 for batch_size in [100]:
 
                     cfg: Dict[str, List[int]] = {
-                        'folder_name': ['generate_exp_data'],
+                        'folder_name': ['generate_permute_data_gaussian'],
                         'f': [13, 10],
                         'g': [13, 10],
                         'n_layers': [4],
@@ -283,7 +283,7 @@ if __name__ == '__main__':
                         'LR': [LR],
                         'optimizer': [optimizer],
                         'batch_size': [batch_size],
-                        'n_epochs': 200
+                        'n_epochs': 30
                     }
 
                     one_experient(cfg)

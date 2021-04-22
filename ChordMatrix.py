@@ -3,25 +3,24 @@ Author: ShuttleNet team (NTNU)
 """
 
 import numpy as np
+import torch
 
 
 def chord_mask(N, base=2, self_loop=True):
     ts = int(round(np.log(N)/np.log(base))) + 1
 
     if self_loop:
-        ch = np.eye(N)
+        ch = torch.eye(N, requires_grad=False)
     else:
-        ch = np.zeros(N)
+        ch = torch.zeros(N, requires_grad=False)
 
     for i in range(N):
         for t in range(ts):
-            # ch[i, abs((i + base ** t)) % N] = 1
             ch[i, ((i - 1) + base ** t) % N] = 1
     return ch
 
 
-print(chord_mask(12, 2, True))
-# print(chord_mask(17, 2, True))
+# print(chord_mask(16, 2, True))
 
 
 
