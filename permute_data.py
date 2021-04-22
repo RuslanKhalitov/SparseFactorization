@@ -147,7 +147,7 @@ if __name__ == '__main__':
     N_samples_test = 500
     N_samples_train = 1000
     N_all = N_samples_test + N_samples_train
-    N = 16
+    N = 12
     d = 5
 
     generate_folders_data(N, d, N_all, N_samples_train, Generator=generate_permute_data_gaussian,

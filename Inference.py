@@ -6,14 +6,14 @@ cfg: Dict[str, List[int]] = {
     'folder_name': ['generate_permute_data_gaussian'],
     'f': [13, 10],
     'g': [13, 10],
-    'n_layers': [4],
-    'N': [16],
-    'd': [5],
+    'n_layers': [5],
+    'N': [32],
+    'd': [8],
     'disable_masking': [True],
-    'LR': [0.01],
+    'LR': [0.1],
     'optimizer': ['Adam'],
     'batch_size': [100],
-    'n_epochs': 500
+    'n_epochs': 200
 }
 
 
