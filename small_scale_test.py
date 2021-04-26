@@ -5,7 +5,7 @@ import numpy as np
 from SMF_torch_deep import *
 import matplotlib.pyplot as plt
 cfg: Dict[str, List[int]] = {
-    'D': [5000],
+    'D': [500],
     'f': [3],
     'n_layers': [1],
     'N': [3],
@@ -64,13 +64,8 @@ def seed_everything(seed=1234):
     torch.backends.cudnn.deterministic = True
 
 
-def generate_A(N):
-    A = torch.rand((N, N))
-    return A
-
-
 def generate_dataset(D, N, d, delta):
-    A = generate_A(N)
+    A = torch.rand((N, N))
     X = [] * D
     Y = [] * D
     for i in range(D):
@@ -86,9 +81,8 @@ def train(X, Y, model, criterion, optimizer):
     losses = []
     for i in range(cfg['num_epoch'][0]):
         train_loss = 0.0
-        optimizer.zero_grad()
-        W = torch.tensor((cfg['N'][0], cfg['N'][0]))
         for j in range(len(X)):
+            optimizer.zero_grad()
             W, V0 = model(X[j])
             loss = criterion(Y[j].float(), V0)
             loss.backward()
