@@ -5,13 +5,12 @@ import numpy as np
 from SMF_torch_deep import *
 import matplotlib.pyplot as plt
 cfg: Dict[str, List[int]] = {
-    'D': [5000],
-    'f': [3],
+    'D': [500],
     'n_layers': [1],
     'N': [3],
     'd': [2],
     'disable_masking': [True],
-    'num_epoch': [200],
+    'num_epoch': [100],
     'LR': [0.001]
     }
 
@@ -26,7 +25,7 @@ class ChangedSMF(SMFNet):
                 W = self.fs[m](X.float())
                 #print(W)
             else:
-                W = self.fs[m](X.float()) * self.chord_mask
+                W = self.fs[m](X.float())
             V0 = torch.matmul(W, V0)
         return W, V0
 
@@ -43,7 +42,7 @@ def simple_SMF(cfg: Dict[str, List]):
     model = ChangedSMF(
         g=make_simple_g(cfg['N'][0]),
         fs=nn.ModuleList(
-            [make_simple_f(cfg['f'][0], cfg['d'][0]) for _ in range(cfg['n_layers'][0])]
+            [make_simple_f(cfg['N'][0], cfg['d'][0]) for _ in range(cfg['n_layers'][0])]
         ),
         N=cfg['N'][0],
         disable_masking=cfg['disable_masking'][0]
@@ -93,7 +92,7 @@ def train(X, Y, model, criterion, optimizer):
         if (i+1) % 10 == 0:
             print(f'epoch{i+1}\t'
                   f'loss:{train_loss/len(X)}')
-        if (i+1) == 200:
+        if (i+1) == cfg['num_epoch'][0]:
             print(W)
 
     return losses
@@ -102,7 +101,6 @@ def train(X, Y, model, criterion, optimizer):
 if __name__ == '__main__':
     seed_everything(1234)
     A, X, Y = generate_dataset(cfg['D'][0], cfg['N'][0], cfg['d'][0], 0.5)
-    print(X)
     model = simple_SMF(cfg)
     print(model)
     criterion = torch.nn.MSELoss(reduction='mean')
