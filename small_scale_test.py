@@ -5,12 +5,12 @@ import numpy as np
 from SMF_torch_deep import *
 import matplotlib.pyplot as plt
 cfg: Dict[str, List[int]] = {
-    'D': [500],
+    'D': [5000],
     'n_layers': [1],
     'N': [3],
     'd': [2],
     'disable_masking': [True],
-    'num_epoch': [100],
+    'num_epoch': [200],
     'LR': [0.001]
     }
 
@@ -69,7 +69,7 @@ def generate_dataset(D, N, d, sigma):
     Y = [] * D
     for i in range(D):
         mu = np.mean(np.random.normal(0, 1, size=(N, d)))
-        x = torch.normal(mean=mu, std=sigma**2, size=(N, d))
+        x = torch.normal(mean=mu, std=sigma, size=(N, d))
         y = torch.matmul(A, x)
         X.append(x)
         Y.append(y)
@@ -93,7 +93,7 @@ def train(X, Y, model, criterion, optimizer):
             print(f'epoch{i+1}\t'
                   f'loss:{train_loss/len(X)}')
         if (i+1) == cfg['num_epoch'][0]:
-            print(W)
+            print(f'W is as following\n {W}')
 
     return losses
 
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     criterion = torch.nn.MSELoss(reduction='mean')
     optimizer = torch.optim.Adam(model.parameters(), lr=cfg['LR'][0])
     losses = train(X, Y, model, criterion, optimizer)
-    print(A)
+    print(f'A is as following\n {A}')
     plt.plot(losses, 'b')
     plt.title("training losses", fontsize=14, pad=12)
     plt.xticks(fontsize=12)
