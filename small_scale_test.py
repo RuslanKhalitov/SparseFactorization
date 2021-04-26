@@ -5,7 +5,7 @@ import numpy as np
 from SMF_torch_deep import *
 import matplotlib.pyplot as plt
 cfg: Dict[str, List[int]] = {
-    'D': [500],
+    'D': [5000],
     'f': [3],
     'n_layers': [1],
     'N': [3],
@@ -64,12 +64,13 @@ def seed_everything(seed=1234):
     torch.backends.cudnn.deterministic = True
 
 
-def generate_dataset(D, N, d, delta):
+def generate_dataset(D, N, d, sigma):
     A = torch.rand((N, N))
     X = [] * D
     Y = [] * D
     for i in range(D):
-        x = torch.normal(mean=0, std=delta, size=(N, d))
+        mu = np.mean(np.random.normal(0, 1, size=(N, d)))
+        x = torch.normal(mean=mu, std=sigma**2, size=(N, d))
         y = torch.matmul(A, x)
         X.append(x)
         Y.append(y)
@@ -100,7 +101,8 @@ def train(X, Y, model, criterion, optimizer):
 
 if __name__ == '__main__':
     seed_everything(1234)
-    A, X, Y = generate_dataset(cfg['D'][0], cfg['N'][0], cfg['d'][0], 0.4)
+    A, X, Y = generate_dataset(cfg['D'][0], cfg['N'][0], cfg['d'][0], 0.5)
+    print(X)
     model = simple_SMF(cfg)
     print(model)
     criterion = torch.nn.MSELoss(reduction='mean')
@@ -108,6 +110,8 @@ if __name__ == '__main__':
     losses = train(X, Y, model, criterion, optimizer)
     print(A)
     plt.plot(losses, 'b')
-    plt.title("training losses", fontsize=12, pad=12)
+    plt.title("training losses", fontsize=14, pad=12)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
     plt.show()
 
