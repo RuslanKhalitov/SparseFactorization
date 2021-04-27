@@ -5,22 +5,11 @@ import numpy as np
 import random
 
 
-def weights_init(module):
-    classname = module.__class__.__name__
-    if classname.find('Linear') != -1:
-        torch.nn.init.normal_(module.weight, 0.0, 1e-2)
-        if hasattr(module, 'bias') and module.bias is not None:
-            torch.nn.init.normal_(module.bias, 0.0, 1e-2)
-
-
 class WModule(nn.Module):
     def __init__(self, n_vec, n_dim, n_hidden):
         super(WModule, self).__init__()
-        self.network = nn.Sequential(
-            nn.Linear(n_dim, n_hidden),
-            nn.GELU(),
-            nn.Linear(n_hidden, n_vec)
-        )
+        self.network = nn.Linear(n_dim, n_vec, bias=False)
+        torch.nn.init.normal_(self.network.weight, 0.0, 1e-4)
 
     def forward(self, data):
         return self.network(data)
@@ -50,11 +39,10 @@ class InteractionModule(nn.Module):
 
 def generate_data(n_data, n_vec, n_dim):
     A = torch.rand(n_vec, n_vec) - 0.5
-#     vec = torch.rand(n_vec, n_dim)
-    all_data = [torch.randn(n_vec, n_dim) for _ in range(n_data)]
+    vec = torch.rand(n_vec, n_dim)
+    all_data = [vec + torch.randn(n_vec, n_dim) * 1e-4 for _ in range(n_data)]
     all_data_gt = [A @ all_data[i] for i in range(n_data)]
-#     return all_data, all_data_gt, A, vec
-    return all_data, all_data_gt, A
+    return all_data, all_data_gt, A, vec
 
 
 def calculate_mean_loss(net, loss, all_data, all_data_gt):
@@ -78,16 +66,15 @@ if __name__ == '__main__':
     n_W = 4
     n_vec = 3
     n_dim = 4
-    n_hidden_f = 50
+    n_hidden_f = 10
     n_hidden_g = 3
     net = InteractionModule(n_W, n_vec, n_dim, n_hidden_f, n_hidden_g)
-    net.apply(weights_init)
     loss = nn.MSELoss()
-    all_data, all_data_gt, A = generate_data(n_data, n_vec, n_dim)
+    all_data, all_data_gt, A, vec = generate_data(n_data, n_vec, n_dim)
 
     optimizer = optim.Adam(net.parameters(), lr=1e-5)
 
-    max_epoch = 300000
+    max_epoch = 1000000
     for epoch in range(max_epoch):
         i = random.randint(0, n_data - 1)
         data = all_data[i]
@@ -102,6 +89,9 @@ if __name__ == '__main__':
             print("epoch=%d/%d, mean_loss=%.10f" % (epoch, max_epoch, mean_loss))
 
     # Testing
+    mean_loss = calculate_mean_loss(net, loss, all_data, all_data_gt)
+    print("final mean_loss=%.10f" % mean_loss)
+
     with torch.no_grad():
         data = all_data[0]
         Apred = torch.eye(n_vec)
@@ -117,9 +107,8 @@ if __name__ == '__main__':
         print("True A")
         print(A)
 
-        print("Predicted A for new data[0]")
+        print("Predicted A for data[0]")
         print(Apred0)
 
-        print("Predicted A for new data[1]")
+        print("Predicted A for data[1]")
         print(Apred1)
-
