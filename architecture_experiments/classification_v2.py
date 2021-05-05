@@ -30,9 +30,9 @@ class WModule(nn.Module):
         return self.network(data)
 
 
-class VLinearModule(nn.Module):
+class VModule(nn.Module):
     def __init__(self, n_dim, n_hidden):
-        super(VLinearModule, self).__init__()
+        super(VModule, self).__init__()
         self.network = nn.Sequential(
             nn.Linear(n_dim, n_hidden),
             nn.GELU(),
@@ -64,7 +64,7 @@ class InteractionModule(nn.Module):
         if not with_g:
             self.g = VIdenticalModule()
         else:
-            self.g = VLinearModule(n_dim, n_hidden_g)
+            self.g = VModule(n_dim, n_hidden_g)
             #print(self.g)
         self.final = nn.Linear(self.n_vec*self.n_dim, n_class, bias=True)
 #         self.softmax = nn.Softmax(dim=1)
@@ -237,7 +237,7 @@ def one_experiment(cfg):
 if __name__ == '__main__':
     cfg = {
         'n_data': [12000],
-        'num_epoch': [5000],
+        'num_epoch': [300],
         'LR': [1e-3],
         'batch_size': [120],
         'n_class': [3],
