@@ -210,7 +210,7 @@ def one_experiment(cfg):
             print("epoch=%d/%d, mean_loss=%.10f" % (epoch, cfg['num_epoch'][0], mean_loss))
             losses.append(float(mean_loss))
             net.train()
-            if mean_loss < 0.0002:
+            if mean_loss < 0.00005:
                 optimizer = optim.Adam(net.parameters(), lr=1e-5)
 
     plot_metrics(losses, N, d, n_W, masking, with_g)
