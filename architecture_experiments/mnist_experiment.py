@@ -267,7 +267,7 @@ if __name__ == '__main__':
         n_dim,
         n_hidden_f,
         n_hidden_g,
-        residual_every=True
+        residual_every=False
     )
     net.apply(weights_init)
 
