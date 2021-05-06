@@ -8,6 +8,7 @@ import torchvision
 from torchvision import datasets, transforms
 from torch import nn, optim
 from torch.utils.data import DataLoader, Dataset
+from ChordMatrix import chord_mask
 
 import matplotlib.pyplot as plt
 
@@ -89,7 +90,7 @@ class VIdenticalModule(nn.Module):
 
 
 class InteractionModule(nn.Module):
-    def __init__(self, n_class, n_W, n_vec, n_dim, n_hidden_f=32, n_hidden_g=10):
+    def __init__(self, n_class, n_W, n_vec, n_dim, n_hidden_f=32, n_hidden_g=10, mask_=True):
         super(InteractionModule, self).__init__()
         self.n_vec = n_vec
         self.n_dim = n_dim
@@ -98,18 +99,21 @@ class InteractionModule(nn.Module):
         )
         self.g = VIdenticalModule()
         self.final = nn.Linear(self.n_vec * self.n_dim, n_class, bias=True)
+        self.mask_ = mask_
 
     def forward(self, data):
         V = self.g(data)
         for f in self.fs[::-1]:
             W = f(data)
+            if self.mask_:
+                W = W * masking
             V = W @ V
         V = self.final(V.view(data.size(0), -1))
         return V
 
 
 class InteractionModuleSkip(nn.Module):
-    def __init__(self, n_class, n_W, n_vec, n_dim, n_hidden_f=32, n_hidden_g=10, residual_every=True):
+    def __init__(self, n_class, n_W, n_vec, n_dim, n_hidden_f=32, n_hidden_g=10, residual_every=True, mask_=True):
         super(InteractionModuleSkip, self).__init__()
         self.n_vec = n_vec
         self.n_dim = n_dim
@@ -119,12 +123,15 @@ class InteractionModuleSkip(nn.Module):
         self.g = VIdenticalModule()
         self.final = nn.Linear(self.n_vec * self.n_dim, n_class, bias=True)
         self.residual_every = residual_every
+        self.mask_ = mask_
 
     def forward(self, data):
         V = self.g(data)
         residual = V
         for f in self.fs[::-1]:
             W = f(data)
+            if self.mask_:
+                W = W * masking
             V = W @ V
             V += residual
             if self.residual_every:
@@ -215,18 +222,18 @@ if __name__ == '__main__':
     test_freq = 1
 
     # MLP training
-    net = simpleMLP()
-
-    print('Simple MLP')
-    TrainSimpleMLP(
-        net=net,
-        trainloader=trainloader,
-        valloader=valloader,
-        n_epochs=n_epochs,
-        test_freq=test_freq,
-        optimizer=optim.Adam(net.parameters(), lr=1e-3),
-        loss=loss
-    )
+    # net = simpleMLP()
+    #
+    # print('Simple MLP')
+    # TrainSimpleMLP(
+    #     net=net,
+    #     trainloader=trainloader,
+    #     valloader=valloader,
+    #     n_epochs=n_epochs,
+    #     test_freq=test_freq,
+    #     optimizer=optim.Adam(net.parameters(), lr=1e-3),
+    #     loss=loss
+    # )
 
     # SMF Training
     n_classes = 10
@@ -236,27 +243,30 @@ if __name__ == '__main__':
     n_hidden_f = 32
     n_hidden_g = 3
 
-    # No Skip Connections
-    print('SMF without Skip Connections')
-    net = InteractionModule(
-        n_classes,
-        n_W,
-        n_vec,
-        n_dim,
-        n_hidden_f,
-        n_hidden_g
-    )
-    net.apply(weights_init)
+    masking = chord_mask(n_vec)
 
-    TrainSMF(
-        net=net,
-        trainloader=trainloader,
-        valloader=valloader,
-        n_epochs=n_epochs,
-        test_freq=test_freq,
-        optimizer=optim.Adam(net.parameters(), lr=1e-3),
-        loss=loss
-    )
+    # No Skip Connections
+    # print('SMF without Skip Connections')
+    # net = InteractionModule(
+    #     n_classes,
+    #     n_W,
+    #     n_vec,
+    #     n_dim,
+    #     n_hidden_f,
+    #     n_hidden_g,
+    #     mask_=True
+    # )
+    # net.apply(weights_init)
+    #
+    # TrainSMF(
+    #     net=net,
+    #     trainloader=trainloader,
+    #     valloader=valloader,
+    #     n_epochs=n_epochs,
+    #     test_freq=test_freq,
+    #     optimizer=optim.Adam(net.parameters(), lr=1e-3),
+    #     loss=loss
+    # )
 
     # Skip Connections
     print('SMF with Skip Connections')
@@ -267,7 +277,8 @@ if __name__ == '__main__':
         n_dim,
         n_hidden_f,
         n_hidden_g,
-        residual_every=False
+        residual_every=False,
+        mask_=True
     )
     net.apply(weights_init)
 
