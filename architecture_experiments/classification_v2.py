@@ -142,6 +142,24 @@ def generate_3class_data(n_data, n_vec=4, n_dim=3):
     return all_data, all_labels
 
 
+def generate_nclass_data_hard_module_concat(n_data, n_classes, n_vec=4, n_dim=3):
+    assert n_data % n_classes == 0, 'Please use the n_data number multiple by {}'.format(n_classes)
+    n_each = int(n_data / n_classes)
+    n_vec = int(n_vec / 2)
+    all_labels = []
+    all_data = []
+    for i in range(n_classes):
+        A = torch.randn(n_vec, n_vec)
+        #         print(A)
+        for j in range(n_each):
+            X = torch.randn(n_vec, n_dim)
+            X_new = torch.cat((X, A @ X), 0)
+            all_data.append(X_new)
+            all_labels.append(i)
+
+    return all_data, all_labels
+
+
 def plot_metrics(losses, N, d, n_W, masking, with_g):
     plt.gca().cla()
     figure_name = f'{n_W}layers{N}N_{d}d_mask{masking}with_g{with_g}'
