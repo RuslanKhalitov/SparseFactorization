@@ -184,7 +184,6 @@ def generate_nclass_nonlinear2(n_data, n_classes, n_vec=4, n_dim=3):
     all_labels = []
     all_data = []
     for i in range(n_classes):
-        transform = torch.sin
         for j in range(n_each):
             X = torch.randn(n_vec, n_dim)
             X = transform((i + 1) * X)
