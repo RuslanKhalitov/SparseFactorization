@@ -160,6 +160,40 @@ def generate_nclass_data_hard_module_concat(n_data, n_classes, n_vec=4, n_dim=3)
     return all_data, all_labels
 
 
+def generate_nclass_nonlinear(n_data, n_classes, n_vec=4, n_dim=3):
+    assert n_data % n_classes == 0, 'Please use the n_data number multiple by {}'.format(n_classes)
+    n_each = int(n_data / n_classes)
+    transforms = [torch.sin, torch.cos, torch.tan]
+    all_labels = []
+    all_data = []
+    for i in range(n_classes):
+        transform = transforms[i]
+        for j in range(n_each):
+            X = torch.randn(n_vec, n_dim)
+            X = transform(X)
+            all_data.append(X)
+            all_labels.append(i)
+
+    return all_data, all_labels
+
+
+def generate_nclass_nonlinear2(n_data, n_classes, n_vec=4, n_dim=3):
+    assert n_data % n_classes == 0, 'Please use the n_data number multiple by {}'.format(n_classes)
+    n_each = int(n_data / n_classes)
+    transform = torch.sin
+    all_labels = []
+    all_data = []
+    for i in range(n_classes):
+        transform = torch.sin
+        for j in range(n_each):
+            X = torch.randn(n_vec, n_dim)
+            X = transform((i + 1) * X)
+            all_data.append(X)
+            all_labels.append(i)
+
+    return all_data, all_labels
+
+
 def plot_metrics(losses, N, d, n_W, masking, with_g):
     plt.gca().cla()
     figure_name = f'{n_W}layers{N}N_{d}d_mask{masking}with_g{with_g}'
