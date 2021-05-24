@@ -222,18 +222,18 @@ if __name__ == '__main__':
     test_freq = 1
 
     # MLP training
-    # net = simpleMLP()
-    #
-    # print('Simple MLP')
-    # TrainSimpleMLP(
-    #     net=net,
-    #     trainloader=trainloader,
-    #     valloader=valloader,
-    #     n_epochs=n_epochs,
-    #     test_freq=test_freq,
-    #     optimizer=optim.Adam(net.parameters(), lr=1e-3),
-    #     loss=loss
-    # )
+    net = simpleMLP()
+
+    print('Simple MLP')
+    TrainSimpleMLP(
+        net=net,
+        trainloader=trainloader,
+        valloader=valloader,
+        n_epochs=n_epochs,
+        test_freq=test_freq,
+        optimizer=optim.Adam(net.parameters(), lr=1e-3),
+        loss=loss
+    )
 
     # SMF Training
     n_classes = 10
