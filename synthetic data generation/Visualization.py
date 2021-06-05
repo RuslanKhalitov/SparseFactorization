@@ -128,7 +128,7 @@ class InteractionModuleSkip(nn.Module):
 
 class InteractionModuleSkipLN(nn.Module):
     def __init__(self, n_class, n_W, n_vec, n_dim, n_hidden_f=32, n_hidden_g=10, residual_every=True, mask_=True):
-        super(InteractionModuleSkip, self).__init__()
+        super(InteractionModuleSkipLN, self).__init__()
         self.n_vec = n_vec
         self.n_dim = n_dim
         self.fs = nn.ModuleList(
@@ -170,7 +170,7 @@ class DatasetCreator(Dataset):
         assert mode in ['train', 'test']
         self.data = data
         self.labels = labels
-        assert len(self.data) == len(self.labels), \
+        assert len(self.data) == len(self.labels),\
             "The number of samples doesn't match the number of labels"
 
     def __getitem__(self, index):
@@ -192,7 +192,7 @@ def visualize(data, W, epoch):
         axes[i][0].plot(data[i], '.')
         axes[i][0].set_title('Epoch: {}, sample: {}'.format(epoch, i))
         axes[i][0].set_ylim(data[i].min()-.3, data[i].max()+.3)
-        axes[i][1].imshow(W[i].detach().numpy(), cmap="Blues", interpolation='nearest')
+        axes[i][1].imshow(W[i].detach().numpy(), cmap="Blues_r")
         tight_layout()
     savefig(f'./W_epoch_{epoch}.png')
 
