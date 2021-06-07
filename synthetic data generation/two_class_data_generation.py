@@ -1,6 +1,7 @@
 """
 Provides generating functions for two-class data
 """
+import random
 import torch
 import matplotlib.pyplot as plt
 
@@ -72,6 +73,7 @@ def generate_two_class_data(n_seq, len_seq, binary=True, same_sigma=True, xor=Fa
     mu0 = len_seq / 4
     mu1 = len_seq / 4 * 3
 
+
     if binary:
         noise = _generate_binary_uniform(n_seq, len_seq, threshold)
     else:
@@ -129,6 +131,31 @@ def generate_two_class_mixed_data(n_seq, len_seq, binary=True, same_sigma=True, 
     mixing = torch.inverse(interaction)
     data = data_orig @ mixing
     return data, class_labels, data_orig, interaction, mixing
+
+
+def generate_n_gaussians(n_seq, len_seq, n_gaussians, noise_level=0.1):
+
+    gen_func = _generate_gaussian_curve
+    assert n_gaussians > 0, 'Please set n_gaussians as int > 0'
+    assert n_seq % n_gaussians == 0, 'Number of sequences should be divisible by n_gaussians'
+    labels = []
+    data = []
+    for i in range(n_seq):
+        ngaus = random.randint(0, n_gaussians)
+        # Starts with some noise
+        sequence = torch.randn(1, len_seq) * noise_level
+        for j in range(ngaus):
+            sigma = 3 * random.random()
+            mu = random.random() * len_seq
+            sequence += gen_func(1, len_seq, mu, sigma)
+
+        data.append(sequence)
+        labels.append(ngaus)
+
+    data = torch.vstack(data)
+    labels = torch.tensor(labels)
+
+    return data, labels
 
 
 def main():
