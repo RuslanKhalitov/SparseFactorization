@@ -145,12 +145,12 @@ def generate_n_gaussians(n_seq, len_seq, n_gaussians, noise_level=0.1):
         # Starts with some noise
         sequence = torch.randn(1, len_seq) * noise_level
         for j in range(ngaus):
-            sigma = 3 * random.random()
+            sigma = len_seq / 10 * random.random()
             mu = random.random() * len_seq
             sequence += gen_func(1, len_seq, mu, sigma)
 
         data.append(sequence)
-        labels.append(ngaus)
+        labels.append(float(ngaus))
 
     data = torch.vstack(data)
     labels = torch.tensor(labels)
