@@ -9,16 +9,16 @@ from tqdm.notebook import tqdm
 from SMF_NLP_competitor import *
 
 torch.manual_seed(42);
-MAX_LEN = 16
+MAX_LEN = 128
 TRAIN_BATCH_SIZE = 128
 VALID_BATCH_SIZE = 128
-EPOCHS = 10
+EPOCHS = 30
 
 
 def read_IMDB():
     df = pd.read_csv('../input/IMDB Dataset.csv')
     # Convert sentiment columns to numerical values
-    df.sentiment = df.sentiment.apply(lambda x: 1 if x=='positive' else 0)
+    df.sentiment = df.sentiment.apply(lambda x: 1 if x == 'positive' else 0)
     ## Cross validation
     # create new column "kfold" and assign a random value
     df['kfold'] = -1
@@ -95,7 +95,7 @@ def train(data_loader, model, optimizer, device):
         # clear the gradient
         optimizer.zero_grad()
         # make prediction from model
-        predictions, Ws = model(reviews)
+        predictions, W_final = model(reviews)
         #print(predictions.shape, targets.shape)
         # caculate the losses
         loss = criterion(predictions, targets.view(-1, 1))
@@ -108,7 +108,7 @@ def train(data_loader, model, optimizer, device):
         targets = data['target'].cpu().detach().numpy().tolist()
         final_predictions.extend(predictions)
         final_targets.extend(targets)
-        text = data
+        text.extend(data['review'].detach().cpu().numpy())
 
         # print(len(Ws))
         # print(Ws[0].shape, Ws[1].shape)
@@ -127,7 +127,7 @@ def train(data_loader, model, optimizer, device):
         #              rotation_mode="anchor")
         # plt.show()
 
-    return final_predictions, final_targets, train_loss, Ws, text
+    return final_predictions, final_targets, train_loss, W_final, text
 
 
 def evaluate(data_loader, model, device):
@@ -173,22 +173,34 @@ def create_embedding_matrix(word_index, embedding_dict=None, d_model=100):
     return embedding_matrix
 
 
-def visualization(Ws, texts, idx):
-    #print(len(Ws))
+def visualization(W_final, texts, epoch, labels, preds):
     #print(Ws[0].shape, Ws[1].shape)
-    input_sentence = texts[idx]
+    fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(30, 30), facecolor="w")
+    axes.tick_params(axis='both', which='major', labelsize=20)
+    input_sentence = texts[0]
     input_sentence = [x for x in input_sentence]
-    fig, axes = plt.subplots(nrows=len(Ws), ncols=1, figsize=(50, 150), facecolor="w")
-    for i in range(len(Ws)):
-        # print(Ws[i][-1].detach().cpu().numpy())
-        axes[i].imshow(Ws[i][idx].detach().cpu().numpy(), cmap="Blues")
-        axes[i].set_yticks(np.arange(len(input_sentence)))
-        axes[i].set_yticklabels(input_sentence)
-        axes[i].set_xticks(np.arange(len(input_sentence)))
-        axes[i].set_xticklabels(input_sentence)
-        plt.setp(axes[i].get_xticklabels(), rotation=45, ha="right",
-                 rotation_mode="anchor")
-    plt.show()
+    axes.imshow(W_final[0].detach().cpu().numpy().transpose(), cmap="Blues")
+    #axes.set_yticks(np.arange(len(input_sentence)))
+    #axes.set_yticklabels(input_sentence, )
+    axes.set_xticks(np.arange(len(input_sentence)))
+    axes.set_xticklabels(input_sentence)
+    axes.set_title(f'epoch_{epoch}_label:{labels[0]}, preds:{int(preds[0])}', fontweight="bold", size=30)
+    plt.setp(axes.get_xticklabels(), rotation=45, ha="right",
+             rotation_mode="anchor")
+    # for i in range(1):
+    #     # print(Ws[i][-1].detach().cpu().numpy())
+    #     input_sentence = texts[i]
+    #     input_sentence = [x for x in input_sentence]
+    #     axes[i].imshow(W_final[i].detach().cpu().numpy().transpose(), cmap="Blues")
+    #     axes[i].set_yticks(np.arange(len(input_sentence)))
+    #     axes[i].set_yticklabels(input_sentence)
+    #     axes[i].set_xticks(np.arange(len(input_sentence)))
+    #     axes[i].set_xticklabels(input_sentence)
+    #     plt.setp(axes[i].get_xticklabels(), rotation=45, ha="right",
+    #              rotation_mode="anchor")
+    #plt.show()
+    plt.savefig(f'./results/W_epoch_{epoch}.png')
+
 
 
 def training():
@@ -206,7 +218,7 @@ def training():
         'n_hidden_g': [3],
         'N': [MAX_LEN],
         'd': [100],
-        'n_W': [4],
+        'n_W': [8],
         'with_g': [True],
         'masking': [True],
         'residual': [False]
@@ -229,23 +241,23 @@ def training():
 
         # STEP 5: Load dataset to Pytorch DataLoader
         # after we have train_dataset, we create a torch dataloader to load train_dataset class based on specified batch_size
-        train_data_loader = torch.utils.data.DataLoader(train_dataset, batch_size=TRAIN_BATCH_SIZE, num_workers=2, shuffle=True)
+        train_data_loader = torch.utils.data.DataLoader(train_dataset, batch_size=TRAIN_BATCH_SIZE, num_workers=1)
         # initialize dataset class for validation
         valid_dataset = IMDBDataset(reviews=xtest, targets=valid_df.sentiment.values)
-        valid_data_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=VALID_BATCH_SIZE, num_workers=1, shuffle=True)
+        valid_data_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=VALID_BATCH_SIZE, num_workers=1)
 
         # STEP 6: Running
         device = torch.device('cuda')
         # feed embedding matrix to lstm
-        model_glove = InteractionModuleEmbed(
+        model_glove = InteractionModuleSkipLN(
             embedding_matrix,
             cfg["n_class"][0],
             cfg["n_W"][0],
             cfg["N"][0],
             cfg["d"][0],
             masking=cfg['masking'][0],
-            with_g=cfg['with_g'][0]
-            #residual_every=cfg['residual'][0]
+            with_g=cfg['with_g'][0],
+            residual_every=cfg['residual'][0]
         )
         #model_glove = LSTM(embedding_matrix)
         print(model_glove)
@@ -261,7 +273,7 @@ def training():
         val_accs = []
         for epoch in range(EPOCHS):
             # train one epoch
-            train_predictions, train_targets, train_loss, Ws, text = train(train_data_loader, model_glove, optimizer, device)
+            train_predictions, train_targets, train_loss, W_final, text = train(train_data_loader, model_glove, optimizer, device)
             train_losses.append(train_loss.cpu().detach().numpy())
             # validate
             outputs, targets, val_loss = evaluate(valid_data_loader, model_glove, device)
@@ -281,14 +293,23 @@ def training():
             val_accs.append(val_accuracy)
             train_accs.append(train_accuracy)
             # decode the index to word and visualize the interaction matrix
-            text = text['review'].detach().cpu().numpy()
-            sentences_last_batch = []
-            for t in text:
-                sentence = []
-                for s in t:
-                    sentence.append(reverse_word_map[s])
-                sentences_last_batch.append(sentence)
-            visualization(Ws, sentences_last_batch, -1)
+            if epoch % 3 == 0:
+                vis_dict = {
+                    'X': text,
+                    'W_final': W_final,
+                    'labels': train_targets,
+                    'preds': train_outputs
+                }
+                sentences_last_batch = []
+                for t in text:
+                    sentence = []
+                    for s in t:
+                        if s == 0:
+                            sentence.append('0')
+                        else:
+                            sentence.append(reverse_word_map[s])
+                    sentences_last_batch.append(sentence)
+                visualization(vis_dict['W_final'], sentences_last_batch, epoch, vis_dict['labels'], vis_dict['preds'])
 
         plt.gca().cla()
         plt.subplot(2, 2, 1)
