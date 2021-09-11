@@ -16,13 +16,13 @@ import pandas as pd
 from torchvision import datasets, transforms
 
 
-seed_everything(10231)
+seed_everything(42)
 
 # print(all_imgs)
 # sys.exit()
 
 # Setting device
-device_id = 2
+device_id = 0
 print(torch.cuda.get_device_name(device_id))
 
 torch.cuda.set_device(device_id) 
