@@ -61,6 +61,7 @@ class PerformerHead(nn.Module):
             dim_head=dim,
             causal = True
         )
+        self.n_vew = n_vec
         self.final = nn.Linear(n_vec*dim, n_class)
         self.problem = problem
         self.linear = nn.Linear(2, dim, bias=True)
@@ -101,6 +102,7 @@ class LinformerHead(nn.Module):
             one_kv_head=True,
             share_kv=True
         )
+        self.n_vec = n_vec
         self.final = nn.Linear(n_vec*dim, n_class)
         self.problem = problem
         self.linear = nn.Linear(2, dim, bias=True)
