@@ -18,7 +18,29 @@ Explaination of the files we use in this part:
 5. **sf_appr_test_all.m** is the sparse approximation for all instances.
 
 ## Large Attention Matrices
-A step-by-step explanation of how to run synthetic experiments code.
+To reproduce the synthetic data experiment. you should first generate data via **synth_data_generation** for the two tasks, Adding and Temporal Order.  You can choose from the sequence length range `[2**7, 2**8, 2**9, 2**10, 2**11, 2**12, 2**13, 2**14]`. The generated datase will be stored as tensors. 
+
+To train PSF and X-formers, you can just run **psf_training.py** and **xformer_training.py**. You can transfer to different task via changing the following  settings.
+
+    cfg_model = config['order']['models']['Transformer']  
+    cfg_training = config['order']['training']
+
+We provide a default configuration for each model of each task in **synthetic_training_config.py**. For instance, we use the following setting for PSF on adding task.
+
+    "PSF":{  
+    "add_init_linear_layer": True,  
+    "vocab_size": 1,  
+    "dim": 32,  
+    "Ws": [32, 'GELU'],  
+    "V": [32, 'GELU'],  
+    "pooling_type": "FLATTEN",  
+    "head": ['linear'],  
+    "n_class": 1,  
+    "n_channels_V": 8,  
+    "use_cuda": True,  
+    "use_residuals": True,  
+    "use_pos_embedding": False,  
+    "problem": "adding"}
 
 ## Long Range Arena
 Explain how to 
