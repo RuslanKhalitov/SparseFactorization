@@ -11,7 +11,7 @@ import tensorflow as tf
 from PIL import Image
 from torchvision import datasets, transforms
 
-ORIGINAL_DATA_DIR_32 = '/lhome/ruslank/sparsefactorisation/lra_release/lra_release/pathfinder32/'
+ORIGINAL_DATA_DIR_32 = './lra_release/lra_release/pathfinder32/'
 easy = 'curv_baseline'
 medium = 'curv_contour_length_9'
 hard = 'curv_contour_length_14'

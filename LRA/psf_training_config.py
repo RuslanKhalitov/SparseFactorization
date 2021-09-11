@@ -83,7 +83,7 @@ config = {
             "batch_size": 64,
             "learning_rate":0.001,
             "eval_frequency":1,
-            "num_train_steps": 66
+            "num_train_steps": 45
         }
     },
     "imdb":{

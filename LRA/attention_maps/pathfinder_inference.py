@@ -19,8 +19,8 @@ cfg_training = config['pathfinder']['training']
 
 # Setting device
 print(torch.cuda.get_device_name(cfg_training["device_id"]))
-# torch.cuda.set_device(cfg_training["device_id"])
-torch.cuda.set_device(0)
+torch.cuda.set_device(cfg_training["device_id"])
+# torch.cuda.set_device(0)
 
 # Make an instance for extracting the attention map
 class ChangedPSF(PSFNet):
@@ -92,7 +92,7 @@ net = ChangedPSF(
     problem=cfg_model["problem"]
 )
 print('Number of trainable parameters', count_params(net))
-net.load_state_dict(torch.load('pathfinder_epoch20_acc80.60120240480961.pt'))
+net.load_state_dict(torch.load('pathfinder_epoch20.pt'))
 net.eval()
 
 
@@ -103,9 +103,6 @@ if cfg_model['use_cuda']:
     net = net.cuda()
 
 df = pd.read_csv('img_paths.csv')
-# print(df.iloc[14][0])
-# sys.exit()
-
 
 # Prepare the testing loader
 testset = DatasetCreator(
@@ -147,7 +144,6 @@ for i, (X, Y) in tqdm(enumerate(testloader), total=len(testloader)):
     X = X.cuda()
     Y = Y.cuda()
     pred, att_map = net(X)
-    # print(att_map.size())
     
     _, predicted = pred.max(1)
     predictions.extend(predicted.tolist())
