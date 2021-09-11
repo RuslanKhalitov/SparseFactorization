@@ -61,7 +61,6 @@ def TrainPSF(
         # Training
         running_loss = 0
         t_start = datetime.now()
-        print(len(trainloader))
         for _, (X, Y) in tqdm(enumerate(trainloader), total=len(trainloader)):
             X = X.cuda()
             Y = Y.cuda()
@@ -99,7 +98,12 @@ def TrainPSF(
                     val_loss += loss(pred.squeeze(), Y).item()
                     _, predicted = pred.max(1)
                     total_val += Y.size(0)
-                    correct_val += predicted.eq(Y).sum().item()
+
+                    if problem == 'adding':
+                        correct_val += (torch.abs(pred.squeeze() - Y) < 0.04).sum()
+                    elif problem == 'order':
+                        _, predicted = pred.max(1)
+                        correct_val += predicted.eq(Y).sum().item()
 
                 # Testing loop
                 for _, (X, Y) in enumerate(testloader):
@@ -109,12 +113,12 @@ def TrainPSF(
                     test_loss += loss(pred.squeeze(), Y).item()
                     _, predicted = pred.max(1)
                     total_test += Y.size(0)
-                    correct_test += predicted.eq(Y).sum().item()
+
                     if problem == 'adding':
-                        correct += (torch.abs(pred.squeeze() - Y) < 0.04).sum()
+                        correct_test += (torch.abs(pred.squeeze() - Y) < 0.04).sum()
                     elif problem == 'order':
                         _, predicted = pred.max(1)
-                        correct += predicted.eq(Y).sum().item()
+                        correct_test += predicted.eq(Y).sum().item()
 
             print("Val  loss: {}".format(val_loss / len(valloader)))
             print("Test loss: {}".format(test_loss / len(testloader)))
