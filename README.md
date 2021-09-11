@@ -1,5 +1,7 @@
 # Sparse Factorization of Large Square Matrices
 # **Architecture**
+![Architeture of PSF](https://github.com/RuslanKhalitov/SparseFactorization/blob/master/psf.pdf)
+PSF-Attn is a transformer-like model, where we replace the scaled dot-product attention with a product of sparse square matrices. The matrix product provides an approximation to a full non-normalized attention matrix.
 
 ## Install requirements.txt
 All the system requirements (used packages and their versions) are provided in requirements.txt.
