@@ -1,4 +1,3 @@
-
 from psf import PSFNet
 from psf_training_config import config
 from psf_utils import DatasetCreator, count_params, seed_everything, TrainPSF
@@ -23,7 +22,7 @@ print(torch.cuda.get_device_name(cfg_training["device_id"]))
 torch.cuda.set_device(cfg_training["device_id"])
 
 # Make an instance for extracting the attention map
-class ChangedSMF(PSFNet):
+class ChangedPSF(PSFNet):
     def forward(self, data):
         data = self.embedding(data)
         if self.use_pos_embedding:
@@ -70,8 +69,8 @@ class ChangedSMF(PSFNet):
         V = self.final(V.view(V.size(0), -1))
         return V, W_final
 
-# Initialize PSFNet
-net = PSFNet(
+# Initialize ChangedPSFNet
+net = ChangedPSF(
     vocab_size=cfg_model["vocab_size"],
     embedding_size=cfg_model["embedding_size"],
     n_vec=cfg_model["n_vec"],
