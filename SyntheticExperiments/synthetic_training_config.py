@@ -71,6 +71,7 @@ config = {
         "models":{
             "PSF":{
                 "add_init_linear_layer": True,
+                "vocab_size": 6,
                 "dim": 32,
                 "Ws": [32, 'GELU'],
                 "V": [32, 'GELU'],
