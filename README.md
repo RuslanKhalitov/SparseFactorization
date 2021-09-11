@@ -1,4 +1,6 @@
 # Sparse Factorization of Large Square Matrices
+# **Architecture**
+https://github.com/RuslanKhalitov/SparseFactorization/blob/master/psf.pdf
 
 ## Install requirements.txt
 All the system requirements (used packages and their versions) are provided in requirements.txt.
