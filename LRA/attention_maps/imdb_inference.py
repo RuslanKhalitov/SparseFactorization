@@ -1,7 +1,7 @@
 
 from psf import PSFNet
 from psf_training_config import config
-from psf_utils_IMDb import DatasetCreator, count_params, seed_everything, attention_visualization
+from psf_utils_attn_IMDb import DatasetCreator, count_params, seed_everything, attention_visualization
 
 import sys
 import torch
