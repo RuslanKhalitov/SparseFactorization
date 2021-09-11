@@ -1,4 +1,5 @@
 # Sparse Factorization of Large Square Matrices
+# **Architecture**
 
 ## Install requirements.txt
 All the system requirements (used packages and their versions) are provided in requirements.txt.
