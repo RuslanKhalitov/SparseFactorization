@@ -64,7 +64,7 @@ config = {
             "batch_size":40,
             "learning_rate":0.001,
             "eval_frequency":1,
-            "num_train_steps":20 # Fixed for all models
+            "num_train_steps":20 # Fixed for all models 
         }
     },
     "order":{
