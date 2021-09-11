@@ -1,3 +1,12 @@
+# Sparse Factorization of Large Square Matrices
+# **Architecture**
+![Architeture of PSF](https://github.com/RuslanKhalitov/SparseFactorization/blob/master/psf.png)
+PSF-Attn is a transformer-like model, where we replace the scaled dot-product attention with a product of sparse square matrices. The matrix product provides an approximation to a full non-normalized attention matrix.
+
+## Install requirements.txt
+All the system requirements (used packages and their versions) are provided in requirements.txt.
+The most important packages are torch-sparse and torch-geometric. The batched sparse multiplication described in the main paper is build upon torch_sparse.spmm and torch_geometric.DataLoader functions. More details are provided in <FILE.PY>
+
 ## Non-parametric experiments
 To run the code you should:
 1. Download the directory **non-parametric**;
@@ -20,3 +29,26 @@ To train PSF and X-formers, you can just run ***psf_training.py*** and ***xforme
     cfg_training = config['order']['training']
 
 We provide a default configuration for each model of each task in ***synthetic_training_config.py***. For instance, we use the following setting for PSF on Adding problem.
+
+    "PSF":{  
+    "add_init_linear_layer": True,  
+    "vocab_size": 1,  
+    "dim": 32,  
+    "Ws": [32, 'GELU'],  
+    "V": [32, 'GELU'],  
+    "pooling_type": "FLATTEN",  
+    "head": ['linear'],  
+    "n_class": 1,  
+    "n_channels_V": 8,  
+    "use_cuda": True,  
+    "use_residuals": True,  
+    "use_pos_embedding": False,  
+    "problem": "adding"}
+
+## Long Range Arena
+Explain how to 
+  1) Install the dataset
+  2) Preprocess data
+  3) Run each experiment
+  4) Visualise the attention maps at test time
+
