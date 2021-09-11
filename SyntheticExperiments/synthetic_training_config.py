@@ -70,7 +70,7 @@ config = {
     "order":{
         "models":{
             "PSF":{
-                "add_init_linear_layer": True,
+                "add_init_linear_layer": False,
                 "vocab_size": 6,
                 "dim": 32,
                 "Ws": [32, 'GELU'],
@@ -87,7 +87,7 @@ config = {
             "Transformer":{
                 "name": "transformer",
                 "vocab_size": 6,
-                "add_init_linear_layer": True,
+                "add_init_linear_layer": False,
                 "dim": 32,
                 "depth": 1,
                 "heads": 1,
@@ -101,7 +101,7 @@ config = {
             "Linformer":{
                 "name": "linformer",
                 "vocab_size": 6,
-                "add_init_linear_layer": True,
+                "add_init_linear_layer": False,
                 "dim": 32,
                 "depth": 1,
                 "heads": 1,
@@ -115,7 +115,7 @@ config = {
             "Performer":{
                 "name": "performer",
                 "vocab_size": 6,
-                "add_init_linear_layer": True,
+                "add_init_linear_layer": False,
                 "dim": 32,
                 "depth": 1,
                 "heads": 1,
