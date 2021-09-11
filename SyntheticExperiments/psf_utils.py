@@ -34,7 +34,7 @@ class DatasetCreator(Dataset):
         Returns: tuple (sample, target)
         """
         X = self.data[index]
-        Y = self.labels[index].to(dtype=torch.long)
+        Y = self.labels[index]
         return (X, Y)
 
     def __len__(self):
@@ -110,6 +110,11 @@ def TrainPSF(
                     _, predicted = pred.max(1)
                     total_test += Y.size(0)
                     correct_test += predicted.eq(Y).sum().item()
+                    if problem == 'adding':
+                        correct += (torch.abs(pred.squeeze() - Y) < 0.04).sum()
+                    elif problem == 'order':
+                        _, predicted = pred.max(1)
+                        correct += predicted.eq(Y).sum().item()
 
             print("Val  loss: {}".format(val_loss / len(valloader)))
             print("Test loss: {}".format(test_loss / len(testloader)))
