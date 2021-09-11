@@ -34,7 +34,7 @@ class DatasetCreator(Dataset):
         Returns: tuple (sample, target)
         """
         X = self.data[index]
-        Y = self.labels[index].to(dtype=torch.long)
+        Y = self.labels[index]
         return (X, Y)
 
     def __len__(self):
