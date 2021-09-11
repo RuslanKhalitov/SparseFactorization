@@ -1,6 +1,8 @@
 # Sparse Factorization of Large Square Matrices
 
 ## Install requirements.txt
+All the system requirements (used packages and their versions) are provided in requirements.txt.
+The most important packages are torch-sparse and torch-geometric. The batched sparse multiplication described in the main paper is build upon torch_sparse.spmm and torch_geometric.DataLoader functions. More details are provided in <FILE.PY>
 
 ## Non-parametric experiments
 To run the code you should:
