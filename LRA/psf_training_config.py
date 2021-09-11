@@ -21,7 +21,7 @@ config = {
             "problem": "listops"
         },
         "training":{
-            "device_id": 2,
+            "device_id": 0,
             "batch_size":32,
             "learning_rate":0.001,
             "eval_frequency":1,
@@ -50,7 +50,7 @@ config = {
             "problem": "cifar10"
         },
         "training":{
-            "device_id": 1,
+            "device_id": 0,
             "batch_size":32,
             "learning_rate":0.001,
             "eval_frequency":1,
@@ -63,8 +63,8 @@ config = {
             "embedding_size": 32,
             "n_vec": 1024,
             "n_W": 11,
-            "Ws": [32, 'GELU'],
-            "V": [32, 'GELU'],
+            "Ws": [128, 'GELU'],
+            "V": [128, 'GELU'],
             "n_channels_V": 32,
             "n_class": 2,
             "pooling_type": "FLATTEN", # "FLATTEN" or "CLS"
@@ -80,7 +80,7 @@ config = {
         },
         "training":{
             "device_id": 0,
-            "batch_size":32,
+            "batch_size":60,
             "learning_rate":0.001,
             "eval_frequency":1,
             "num_train_steps":200
