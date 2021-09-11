@@ -59,6 +59,7 @@ config = {
                 "use_cuda": True,
                 "use_pos_embedding": False,
                 "n_vec": 128,
+                "problem": "adding"
             },
         },
         "training":{
