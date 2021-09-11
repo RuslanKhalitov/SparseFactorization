@@ -4,6 +4,7 @@ config = {
             "PSF":{
                 "add_init_linear_layer": True,
                 "vocab_size": 1,
+                "dim": 32,
                 "Ws": [32, 'GELU'],
                 "V": [32, 'GELU'],
                 "pooling_type": "FLATTEN",
@@ -72,6 +73,7 @@ config = {
         "models":{
             "PSF":{
                 "add_init_linear_layer": True,
+                "dim": 32,
                 "Ws": [32, 'GELU'],
                 "V": [32, 'GELU'],
                 "pooling_type": "FLATTEN",
