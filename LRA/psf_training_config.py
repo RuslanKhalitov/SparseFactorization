@@ -25,7 +25,7 @@ config = {
             "batch_size":32,
             "learning_rate":0.001,
             "eval_frequency":1,
-            "num_train_steps":7
+            "num_train_steps": 7
         }
     },
     "cifar10":{
