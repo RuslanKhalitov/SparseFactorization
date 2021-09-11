@@ -13,7 +13,7 @@ n_vec = 16384
 seed_everything(42)
 
 # Parse config
-cfg_model = config['order']['models']['Performer']
+cfg_model = config['order']['models']['Transformer']
 cfg_training = config['order']['training']
 
 # Setting device
@@ -55,25 +55,18 @@ print(net)
 # sys.exit()
 
 # Read the data
+data = torch.load(f'{cfg_model["problem"]}_{n_vec}_train.pt')
+labels = torch.load(f'{cfg_model["problem"]}_{n_vec}_train_target.pt')
+
+data_val = torch.load(f'{cfg_model["problem"]}_{n_vec}_test.pt')
+labels_val = torch.load(f'{cfg_model["problem"]}_{n_vec}_test_target.pt')
+
+data_test = torch.load(f'{cfg_model["problem"]}_{n_vec}_test.pt')
+labels_test = torch.load(f'{cfg_model["problem"]}_{n_vec}_test_target.pt')
+
 if cfg_model["problem"] == "adding":
-    data = torch.load(f'{cfg_model["problem"]}_128_train.pt')
-    labels = torch.load(f'{cfg_model["problem"]}_128_train_target.pt')
-
-    data_val = torch.load(f'{cfg_model["problem"]}_128_test.pt')
-    labels_val = torch.load(f'{cfg_model["problem"]}_128_test_target.pt')
-
-    data_test = torch.load(f'{cfg_model["problem"]}_128_test.pt')
-    labels_test = torch.load(f'{cfg_model["problem"]}_128_test_target.pt')
     loss = nn.MSELoss()
 else:
-    data = torch.load(f'{cfg_model["problem"]}_128_train.pt').to(torch.int64)
-    labels = torch.load(f'{cfg_model["problem"]}_128_train_target.pt').to(torch.int64)
-
-    data_val = torch.load(f'{cfg_model["problem"]}_128_test.pt').to(torch.int64)
-    labels_val = torch.load(f'{cfg_model["problem"]}_128_test_target.pt').to(torch.int64)
-
-    data_test = torch.load(f'{cfg_model["problem"]}_128_test.pt').to(torch.int64)
-    labels_test = torch.load(f'{cfg_model["problem"]}_128_test_target.pt').to(torch.int64)
     loss = nn.CrossEntropyLoss()
 
 optimizer = optim.Adam(
@@ -139,4 +132,3 @@ TrainModel(
     problem=cfg_model['problem'],
     saving_criteria=90
 )
-
