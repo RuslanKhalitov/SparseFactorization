@@ -45,7 +45,7 @@ def count_params(net):
     n_params = sum(p.numel() for p in net.parameters() if p.requires_grad)
     return n_params
 
-def TrainPSF(
+def TrainModel(
         net,
         trainloader,
         valloader,
