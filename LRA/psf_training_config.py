@@ -25,7 +25,7 @@ config = {
             "batch_size":32,
             "learning_rate":0.001,
             "eval_frequency":1,
-            "num_train_steps":200
+            "num_train_steps":12
         }
     },
     "cifar10":{
@@ -54,7 +54,7 @@ config = {
             "batch_size":32,
             "learning_rate":0.001,
             "eval_frequency":1,
-            "num_train_steps":200
+            "num_train_steps":35
         }
     },
     "pathfinder":{
@@ -80,10 +80,10 @@ config = {
         },
         "training":{
             "device_id": 0,
-            "batch_size":60,
+            "batch_size": 64,
             "learning_rate":0.001,
             "eval_frequency":1,
-            "num_train_steps":200
+            "num_train_steps": 66
         }
     },
     "imdb":{
@@ -112,7 +112,7 @@ config = {
             "batch_size":32,
             "learning_rate":0.0001,
             "eval_frequency":1,
-            "num_train_steps":200
+            "num_train_steps":145
         }
     }
 }
