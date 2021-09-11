@@ -59,10 +59,10 @@ class MLPBlock(nn.Module):
     def forward(self, data):
         return self.network(data)
 
-
 class PSFNet(nn.Module):
     def __init__(self,
     vocab_size,
+    add_init_linear_layer,
     embedding_size,
     n_vec,
     n_W,
@@ -74,14 +74,11 @@ class PSFNet(nn.Module):
     head,
     use_cuda,
     use_residuals,
-    dropout1_p,
-    dropout2_p,
-    dropout3_p,
-    init_embedding_weights,
     use_pos_embedding,
     problem):
         super(PSFNet, self).__init__()
         self.vocab_size = vocab_size
+        self.add_init_linear_layer = add_init_linear_layer
         self.embedding_size = embedding_size
         self.n_vec = n_vec
         self.n_W = n_W
@@ -94,35 +91,20 @@ class PSFNet(nn.Module):
         self.head = head
         self.use_cuda = use_cuda
         self.use_residuals = use_residuals
-        self.dropout1_p = dropout1_p
-        self.dropout2_p = dropout2_p
-        self.dropout3_p = dropout3_p
-        self.init_embedding_weights = init_embedding_weights
         self.use_pos_embedding = use_pos_embedding
         self.problem = problem
 
-        # Init embedding layers
-        # print(f'Making embedding for {self.problem}')
-        if (self.problem == 'imdb') or (self.problem == 'listops'):
-            self.embedding = nn.Embedding(
-                self.vocab_size,
-                self.embedding_size,
-                padding_idx=self.vocab_size-2
-            )
-        elif (self.problem == 'cifar10') or (self.problem == 'pathfinder'):
-            self.embedding = nn.Embedding(
-                self.vocab_size,
-                self.embedding_size
-            )
+        # Init embedding layer
+        self.embedding = nn.Embedding(
+            self.vocab_size,
+            self.embedding_size
+        )
 
         # Init positional embeding layer
         self.pos_embedding = nn.Embedding(
             self.n_vec,
             self.embedding_size
         )
-
-        if self.init_embedding_weights:
-            self.init_embed_weights()
 
         # Init Ws
         self.fs = nn.ModuleList(
@@ -145,59 +127,31 @@ class PSFNet(nn.Module):
         
         # Init final layer
         if self.head[0] == 'linear':
-            if self.pooling_type == 'FLATTEN':
-                self.final =  nn.Linear(
-                    self.n_vec * self.n_channels_V,
-                    self.n_class
-                )
-            elif self.pooling_type == 'CLS':
-                self.final =  nn.Linear(
-                    self.n_channels_V,
-                    self.n_class
-                )
-        elif self.head[0] == 'non-linear':
-            if self.pooling_type == 'FLATTEN':
-                self.final = nn.Sequential(
-                    nn.Linear(
-                        self.n_vec * self.n_channels_V,
-                        self.head[1]
-                    ),
-                    nn.GELU(),
-                    nn.Linear(
-                        self.head[1],
-                        self.n_class
-                    )
-                )
-            elif self.pooling_type == 'CLS':
-                self.final = nn.Sequential(
-                    nn.Linear(
-                        self.n_channels_V,
-                        self.head[1]
-                    ),
-                    nn.GELU(),
-                    nn.Linear(
-                        self.head[1],
-                        self.n_class
-                    )
-                )
-
-        self.dropout1 = nn.Dropout(self.dropout1_p)
-        self.dropout2 = nn.Dropout(self.dropout2_p)
-        self.dropout3 = nn.Dropout(self.dropout3_p)
+            self.final = nn.Linear(
+                self.n_vec * self.n_channels_V,
+                self.n_class,
+                bias=True
+            )
+            
+        if self.add_init_linear_layer:
+            self.init_linear = nn.Linear(
+                2,
+                self.embedding_size,
+                bias=True
+            )
         
         self.chord_indicies = torch.tensor(get_chord_indices_assym(self.n_vec, self.n_links))
         if self.use_cuda:
             self.chord_indicies = self.chord_indicies.cuda()
     
-    def init_embed_weights(self):
-        initrange = 0.1
-        self.embedding.weight.data.uniform_(-initrange, initrange)
-        self.embedding.weight.requires_grad = True
 
     def forward(self, data):
         
         # Get embedding
-        data = self.embedding(data)
+        if self.problem == 'order':
+            data = self.embedding(data).squeeze(-2)
+        if self.add_init_linear_layer:
+            data = self.init_linear(data)
 
         # Get positional embedding if needed
         if self.use_pos_embedding:
@@ -207,14 +161,8 @@ class PSFNet(nn.Module):
             pos_embed = self.pos_embedding(positions)
             data = data + pos_embed
 
-        # Apply the first dropout
-        data = self.dropout1(data)
-
         # Get V 
         V = self.g(data)
-
-        # Apply the second dropout
-        V = self.dropout2(V)
 
         # Init residual connection if needed
         if self.use_residuals:
@@ -238,12 +186,6 @@ class PSFNet(nn.Module):
             # Apply residual connection
             if self.use_residuals:
                 V = V + res_conn
-
-        # Apply the third dropout
-        V = self.dropout3(V)
-            
-        if self.pooling_type == 'CLS':
-            V = V[:, 0, :]
 
         V = self.final(V.view(V.size(0), -1))
         return V 
