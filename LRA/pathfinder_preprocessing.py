@@ -126,8 +126,8 @@ all_targets = torch.cat(all_targets, 0)
 print('ALL IMGS TENSOR SIZE:', all_imgs.size())
 print('ALL TRGS TENSOR SIZE:', all_targets.size())
 
-torch.save(all_imgs, 'pathfinder32_all_val.pt')
-torch.save(all_targets, 'pathfinder32_all_val_targets.pt')
+torch.save(all_imgs, 'pathfinder32_all_test.pt')
+torch.save(all_targets, 'pathfinder32_all_test_targets.pt')
 
 all_imgs = []
 all_targets = []
@@ -146,5 +146,5 @@ all_targets = torch.cat(all_targets, 0)
 print('ALL IMGS TENSOR SIZE:', all_imgs.size())
 print('ALL TRGS TENSOR SIZE:', all_targets.size())
 
-torch.save(all_imgs, 'pathfinder32_all_test.pt')
-torch.save(all_targets, 'pathfinder32_all_test_targets.pt')
+torch.save(all_imgs, 'pathfinder32_all_val.pt')
+torch.save(all_targets, 'pathfinder32_all_val_targets.pt')
