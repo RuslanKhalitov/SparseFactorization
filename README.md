@@ -15,8 +15,8 @@ To run the code you should:
 
 Explaination of the files we use in this part:
 1. [chord_mask_mat.m](https://github.com/RuslanKhalitov/SparseFactorization/blob/master/non-parametric/chord_mask_mat.m) is used to generate chord masking for W;
-2. [data_list.csv](https://github.com/RuslanKhalitov/SparseFactorization/blob/master/non-parametric/data_list.csv) is a list used to go though all the pictures;
-3. [load_suqare_matrix.m](https://github.com/RuslanKhalitov/SparseFactorization/blob/master/non-parametric/load_suqare_matrix.m) is a dataloader used to transform images to matrices;
+2. [datalist.csv](https://github.com/RuslanKhalitov/SparseFactorization/blob/master/non-parametric/datalist.csv) is a list used to go though all the pictures;
+3. [load_square_matrix.m](https://github.com/RuslanKhalitov/SparseFactorization/blob/master/non-parametric/load_square_matrix.m) is a dataloader used to transform images to matrices;
 4. [sf_appr_test.m](https://github.com/RuslanKhalitov/SparseFactorization/blob/master/non-parametric/sf_appr_test.m) is the sparse approximation for one instance. It includes objective function, gradient update test process, and also TSVD part.
 5. [sf_appr_test_all.m](https://github.com/RuslanKhalitov/SparseFactorization/blob/master/non-parametric/sf_appr_test_all.m) is the sparse approximation for all instances.
 
