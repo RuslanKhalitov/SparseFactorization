@@ -8,7 +8,7 @@ import torch
 from torch import nn, optim
 import torch_geometric
 
-n_vec = 128
+n_vec = 16384
 
 seed_everything(42)
 
