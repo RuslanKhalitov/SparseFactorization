@@ -7,6 +7,7 @@ import torch
 from torch import nn, optim
 import torch_geometric
 
+# Feel free to change the random seed
 seed_everything(42)
 
 # Parse config
@@ -34,6 +35,7 @@ net = PSFNet(
     use_residuals=cfg_model["use_residuals"],
     dropout1_p=cfg_model["dropout1_p"],
     dropout2_p=cfg_model["dropout2_p"],
+    dropout3_p=cfg_model["dropout3_p"],
     init_embedding_weights = cfg_model["init_embedding_weights"],
     use_pos_embedding=cfg_model["use_pos_embedding"],
     problem=cfg_model["problem"]
