@@ -148,3 +148,27 @@ print('ALL TRGS TENSOR SIZE:', all_targets.size())
 
 torch.save(all_imgs, 'pathfinder32_all_val.pt')
 torch.save(all_targets, 'pathfinder32_all_val_targets.pt')
+
+
+# For Inference part
+# taking the names of the testset images
+import pandas as pd
+df = pd.DataFrame()
+
+all_imgs_paths = []
+for complex in [easy, medium, hard]:
+    path_to_metafiles = os.path.join(ORIGINAL_DATA_DIR_32, complex, 'metadata')
+    metafiles = os.listdir(path_to_metafiles)
+    metafiles.sort()
+    for metafile in tqdm(metafiles[:10]):
+
+        meta_examples = tf.io.read_file(path_to_metafiles + '/{}'.format(metafile)).numpy().decode('utf-8').split('\n')[:-1]
+        # print('Number of images:', len(meta_examples))
+        for m_example in meta_examples:
+            m_example = m_example.split(' ')
+            image_path = os.path.join(ORIGINAL_DATA_DIR_32, complex, m_example[0], m_example[1])
+            all_imgs_paths.append(image_path)
+    
+df['img_path'] = all_imgs_paths
+
+df.to_csv('img_paths.csv', index=False)
