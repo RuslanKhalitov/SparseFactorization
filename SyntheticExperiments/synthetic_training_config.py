@@ -3,6 +3,7 @@ config = {
         "models":{
             "PSF":{
                 "add_init_linear_layer": True,
+                "vocab_size": 1,
                 "Ws": [32, 'GELU'],
                 "V": [32, 'GELU'],
                 "pooling_type": "FLATTEN",
@@ -15,6 +16,8 @@ config = {
                 "problem": "adding"
             },
             "Transformer":{
+                "name": "transformer",
+                "vocab_size": 1,
                 "add_init_linear_layer": True,
                 "dim": 32,
                 "depth": 1,
@@ -24,9 +27,12 @@ config = {
                 "n_class": 1,
                 "use_cuda": True,
                 "use_pos_embedding": False,
-
+                "n_vec": 128,
+                "problem": "adding"
             },
             "Linformer":{
+                "name": "linformer",
+                "vocab_size": 1,
                 "add_init_linear_layer": True,
                 "dim": 32,
                 "depth": 1,
@@ -36,8 +42,12 @@ config = {
                 "n_class": 1,
                 "use_cuda": True,
                 "use_pos_embedding": False,
+                "n_vec": 128,
+                "problem": "adding"
             },
             "Performer":{
+                "name": "performer",
+                "vocab_size": 1,
                 "add_init_linear_layer": True,
                 "dim": 32,
                 "depth": 1,
@@ -47,6 +57,7 @@ config = {
                 "n_class": 1,
                 "use_cuda": True,
                 "use_pos_embedding": False,
+                "n_vec": 128,
             },
         },
         "training":{
@@ -73,6 +84,8 @@ config = {
                 "problem": "order"
             },
             "Transformer":{
+                "name": "transformer",
+                "vocab_size": 6,
                 "add_init_linear_layer": True,
                 "dim": 32,
                 "depth": 1,
@@ -82,10 +95,13 @@ config = {
                 "n_class": 1,
                 "use_cuda": True,
                 "use_pos_embedding": True,
+                "problem": "order",
+                "n_vec": 128,
                 "problem": "order"
-
             },
             "Linformer":{
+                "name": "linformer",
+                "vocab_size": 6,
                 "add_init_linear_layer": True,
                 "dim": 32,
                 "depth": 1,
@@ -95,9 +111,13 @@ config = {
                 "n_class": 1,
                 "use_cuda": True,
                 "use_pos_embedding": True,
+                "problem": "order",
+                "n_vec": 128,
                 "problem": "order"
             },
             "Performer":{
+                "name": "performer",
+                "vocab_size": 6,
                 "add_init_linear_layer": True,
                 "dim": 32,
                 "depth": 1,
@@ -107,6 +127,8 @@ config = {
                 "n_class": 1,
                 "use_cuda": True,
                 "use_pos_embedding": True,
+                "problem": "order",
+                "n_vec": 128,
                 "problem": "order"
             },
         },
