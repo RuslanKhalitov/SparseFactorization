@@ -21,7 +21,7 @@ Explaination of the files we use in this part:
 5. **sf_appr_test_all.m** is the sparse approximation for all instances.
 
 ## Large Attention Matrices
-To reproduce the synthetic data experiment. You should first generate data via **synth_data_generation** for the two tasks, Adding and Temporal Order.  You can choose from the sequence length range `[2**7, 2**8, 2**9, 2**10, 2**11, 2**12, 2**13, 2**14]`. The generated dataset will be stored as tensors. 
+To reproduce the synthetic data experiment. You should first generate data via [synth_data_generation.py](https://github.com/RuslanKhalitov/SparseFactorization/tree/master/SyntheticExperiments) for the two tasks, Adding and Temporal Order.  You can choose from the sequence length range `[2**7, 2**8, 2**9, 2**10, 2**11, 2**12, 2**13, 2**14]`. The generated dataset will be stored as tensors. 
 
 To train PSF and X-formers, you can just run **psf_training.py** and **xformer_training.py**. You can transfer to a different task by changing the following settings.
 
