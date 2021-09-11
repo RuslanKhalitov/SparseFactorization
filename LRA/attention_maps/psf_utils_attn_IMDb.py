@@ -76,4 +76,4 @@ def attention_visualization(W_final, text, labels, preds):
     plt.setp(axes.get_xticklabels(), rotation=45, ha="right",
              rotation_mode="anchor")
     plt.setp(axes.get_yticklabels(), visible=False)
-    plt.savefig(f'./results/W_{s}.png', bbox_inches='tight')
+    plt.savefig(f'./W_{s}.png', bbox_inches='tight')
