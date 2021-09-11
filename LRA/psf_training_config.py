@@ -21,11 +21,11 @@ config = {
             "problem": "listops"
         },
         "training":{
-            "device_id": 0,
+            "device_id": 1,
             "batch_size":32,
             "learning_rate":0.001,
             "eval_frequency":1,
-            "num_train_steps":12
+            "num_train_steps":7
         }
     },
     "cifar10":{
