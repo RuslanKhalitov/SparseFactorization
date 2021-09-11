@@ -28,7 +28,6 @@ config = {
                 "n_class": 1,
                 "use_cuda": True,
                 "use_pos_embedding": False,
-                "n_vec": 128,
                 "problem": "adding"
             },
             "Linformer":{
@@ -43,7 +42,6 @@ config = {
                 "n_class": 1,
                 "use_cuda": True,
                 "use_pos_embedding": False,
-                "n_vec": 128,
                 "problem": "adding"
             },
             "Performer":{
@@ -58,7 +56,6 @@ config = {
                 "n_class": 1,
                 "use_cuda": True,
                 "use_pos_embedding": False,
-                "n_vec": 128,
                 "problem": "adding"
             },
         },
@@ -79,7 +76,7 @@ config = {
                 "V": [32, 'GELU'],
                 "pooling_type": "FLATTEN",
                 "head": ['linear'],
-                "n_class": 1,
+                "n_class": 4,
                 "n_channels_V": 8,
                 "use_cuda": True,
                 "use_residuals": True,
@@ -95,11 +92,9 @@ config = {
                 "heads": 1,
                 "pooling_type": "FLATTEN",
                 "head": ['linear'],
-                "n_class": 1,
+                "n_class": 4,
                 "use_cuda": True,
                 "use_pos_embedding": True,
-                "problem": "order",
-                "n_vec": 128,
                 "problem": "order"
             },
             "Linformer":{
@@ -111,11 +106,9 @@ config = {
                 "heads": 1,
                 "pooling_type": "FLATTEN",
                 "head": ['linear'],
-                "n_class": 1,
+                "n_class": 4,
                 "use_cuda": True,
                 "use_pos_embedding": True,
-                "problem": "order",
-                "n_vec": 128,
                 "problem": "order"
             },
             "Performer":{
@@ -127,11 +120,9 @@ config = {
                 "heads": 1,
                 "pooling_type": "FLATTEN",
                 "head": ['linear'],
-                "n_class": 1,
+                "n_class": 4,
                 "use_cuda": True,
                 "use_pos_embedding": True,
-                "problem": "order",
-                "n_vec": 128,
                 "problem": "order"
             },
         },
