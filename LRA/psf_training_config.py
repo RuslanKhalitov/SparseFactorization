@@ -90,7 +90,7 @@ config = {
         "model":{
             "vocab_size": 95 + 1 + 1, # 95 unique symbols + 1 PAD + 1 CLS
             "embedding_size": 32,
-            "n_vec": 4096 + 1, # Plus CLS token
+            "n_vec": 4096 + 1, # Plus CLS token 
             "n_W": 12,
             "Ws": [128, 'GELU'],
             "V": [128, 'GELU'],
