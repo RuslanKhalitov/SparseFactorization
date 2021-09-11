@@ -8,7 +8,7 @@ from torch import nn, optim
 import torch_geometric
 import numpy as np
 
-problem = "adding" # "adding" or "order"
+problem = "order" # "adding" or "order"
 n_vec = 16384      # from 2**7 to 2**14
 print(int(np.log2(n_vec)))
 
@@ -66,7 +66,6 @@ labels_val = torch.load(f'{problem}_{n_vec}_val_target.pt')
 
 data_test = torch.load(f'{problem}_{n_vec}_test.pt')
 labels_test = torch.load(f'{problem}_{n_vec}_test_target.pt')
-
 
 
 if cfg_model['use_cuda']:
