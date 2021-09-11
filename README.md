@@ -10,8 +10,8 @@ The most important packages are torch-sparse and torch-geometric. The batched sp
 ## Non-parametric experiments
 To run the code you should:
 1. Download the directory **non-parametric**;
-2. Unzip [Square_matrices];
-3. run [sf_appr_test_all.m]in Matlab.
+2. Unzip **Square_matrices**;
+3. run ***f_appr_test_all.m***in Matlab.
 
 Explaination of the files we use in this part:
 1. ***chord_mask_mat.m*** is used to generate chord masking for W;
