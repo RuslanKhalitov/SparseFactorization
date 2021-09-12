@@ -23,7 +23,13 @@ Explaination of the files we use in this part:
 
 ## Large Attention Matrices
 To reproduce the synthetic data experiment results, you have to generate the sequences data via ***synth_data_generation.py***. Based on the set sequence length it will create tensors for both the Adding and Temporal Order problems.  By default it itererates over all sequences lengths: `[2**7, 2**8, 2**9, 2**10, 2**11, 2**12, 2**13, 2**14]`. The script generates six tensors for each length and problem and stores them in the default folder in the following format:
-`train_`
+
+`{problem}_{n_vec}_train.pt`
+`{problem}_{n_vec}_train_targets.pt`
+`{problem}_{n_vec}_test.pt`
+`{problem}_{n_vec}_test_targets.pt`
+`{problem}_{n_vec}_val.pt`
+`{problem}_{n_vec}_val_targets.pt`
 
 To train PSF-Attn and X-formers, you can just run ***psf_training.py*** and ***xformer_training.py***, respectively. You can transfer to a different task by changing the following settings:
 

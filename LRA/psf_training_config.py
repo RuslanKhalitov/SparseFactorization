@@ -21,7 +21,7 @@ config = {
             "problem": "listops"
         },
         "training":{
-            "device_id": 1,
+            "device_id": 0,
             "batch_size":32,
             "learning_rate":0.001,
             "eval_frequency":1,
