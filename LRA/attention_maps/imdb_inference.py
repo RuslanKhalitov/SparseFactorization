@@ -89,7 +89,7 @@ net = ChangedPSF(
     problem=cfg_model["problem"]
 )
 print('Number of trainable parameters', count_params(net))
-net.load_state_dict(torch.load('imdb_epoch138_acc78.24503841229193.pt'))
+net.load_state_dict(torch.load('imdb_epoch138.pt'))
 net.eval()
 
 loss = nn.CrossEntropyLoss()
