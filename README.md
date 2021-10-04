@@ -19,11 +19,11 @@ To run the code you should:
 3. run ***sf_appr_test_all.m*** in Matlab.
 
 Explanation of the files we use in this part:
-1. ***chord_mask_mat.m*** is used to generate chord masking for W;
-2. ***datalist.csv*** is a list used to go through all the pictures;
-3. ***load_square_matrix.m*** is a dataloader used to transform images to matrices;
-4. ***sf_appr_test.m*** is the sparse approximation for one instance. It includes objective function, gradient update test process, and also TSVD part.
-5. ***sf_appr_test_all.m*** is the sparse approximation for all instances.
+1. ***chord_mask_mat.m*** is used to generate chord masking for the factorizing matrices;
+2. ***datalist.csv*** is a list of all tested square matrices;
+3. ***load_square_matrix.m*** is a dataloader for a specific square matrix;
+4. ***sf_appr_test.m*** runs the sparse approximation for one square matrix. It includes objective function, gradient update test process, and also TSVD part.
+5. ***sf_appr_test_all.m*** is the sparse approximation for all square matrices.
 
 ## Large Attention Matrices
 To reproduce the synthetic data experiment results, you have to generate the sequences data via ***synth_data_generation.py***. Based on the set sequence length, it will create tensors for both the Adding and Temporal Order problems.  By default it iterates over all sequences lengths: `[2**7, 2**8, 2**9, 2**10, 2**11, 2**12, 2**13, 2**14]`. The script generates six tensors for each length and problem and stores them in the default folder in the following format:
