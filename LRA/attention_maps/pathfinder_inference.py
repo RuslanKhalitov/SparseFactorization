@@ -228,7 +228,7 @@ if backbone == 'PSF':
         use_pos_embedding=cfg_model["use_pos_embedding"],
         problem=cfg_model["problem"]
     )
-    net.load_state_dict(torch.load('chordmixer/attention_maps/PSF_5.pt'))
+    net.load_state_dict(torch.load('PSF_5.pt'))
 elif backbone == 'Transformer':
     net = TransformerHead(
         cfg_model["vocab_size"],
@@ -375,13 +375,3 @@ for batch_idx, (X, Y) in tqdm(enumerate(testloader), total=len(testloader)):
         q_down=0.7
     )
 
-# print("Test accuracy: {}".format(100.*correct/total))
-# accuracy = int(100.*correct/total)
-# print(accuracy)
-# print('len pred', len(predictions))
-# print('len gt', len(ground_truth))
-# leng = len(predictions)
-# df['targets'] = ground_truth
-# df['predictions'] = predictions
-# df.to_csv('inference_p32.csv', index=False)
-# print(df)
