@@ -1,4 +1,4 @@
-# Sparse Factorization of Large Square Matrices
+# Sparse factorization of square matrices with application to neural attention modeling.
 Implementation of PSF-Attn.
 
 Link to the paper: https://www.sciencedirect.com/science/article/pii/S0893608022001460
