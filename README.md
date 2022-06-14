@@ -1,7 +1,7 @@
 # Sparse Factorization of Large Square Matrices
 Implementation of PSF-Attn.
 
-Arxiv preprint: https://arxiv.org/abs/2109.08184
+Link to the paper: https://www.sciencedirect.com/science/article/pii/S0893608022001460
 
 # **Architecture**
 ![Architeture of PSF](https://github.com/RuslanKhalitov/SparseFactorization/blob/master/psf.png)
