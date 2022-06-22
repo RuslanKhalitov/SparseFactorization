@@ -134,6 +134,9 @@ There you may find the model states for each task that are used for the inferenc
 
 We provide two runnable files for extracting imdb and pathfinder attention maps. **fathfinder_inference.py*** saves the attention images in the *att_matr_path* folder, which it will create if not exists. In the *pathfinder_instances* folder you will find examples of the attention maps from the Pathfinder task.
 
+### Acknowledgments
+We want to thank [Sverre Herland](https://github.com/sherilan) for valuable discussions and help with the paper text editing.
+
 # **Cite**
 ```
 @article{khalitov2022sparse,
